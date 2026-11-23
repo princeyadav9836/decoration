@@ -185,6 +185,8 @@ async function sendAdminNotification(booking) {
 
   const formattedAdmin = formatWhatsAppNumber(adminNumber);
   const totalAmount = Number(booking.estimatedAmount) || 2499;
+  const effectiveBase = (process.env.APP_BASE_URL || 'https://the-party-hard.netlify.app').replace(/\/$/, '');
+  const receiptUrl = `${effectiveBase}/api/bookings/${booking.id}/receipt.pdf`;
 
   const adminText = 
 `🔔 *NEW BOOKING ALERT - YUVI DECORATION*
@@ -199,6 +201,7 @@ Venue: *${booking.venueAddress}*
 Notes: ${booking.notes || 'None'}
 
 Booking ID: *${booking.id}*
+📄 *PDF Receipt:* ${receiptUrl}
 👉 Manage in Admin Panel: /admin.html`;
 
   const payload = {
@@ -249,8 +252,8 @@ async function deliverBookingWhatsAppConfirmation(booking, baseUrl = 'http://loc
   }
 
   // Construct absolute public link for PDF
-  const cleanBase = baseUrl.replace(/\/$/, '');
-  const publicReceiptUrl = `${cleanBase}${booking.receiptUrl || `/receipts/Receipt-${booking.id}.pdf`}`;
+  const effectiveBase = (process.env.APP_BASE_URL || baseUrl || 'http://localhost:3000').replace(/\/$/, '');
+  const publicReceiptUrl = `${effectiveBase}/api/bookings/${booking.id}/receipt.pdf`;
 
   try {
     // 1. Send confirmation message

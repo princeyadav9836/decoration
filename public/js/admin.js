@@ -373,8 +373,12 @@ function renderBookingsTable(bookings) {
   tbody.innerHTML = bookings.map(b => {
     const status = (b.status || 'pending').toLowerCase();
     const waStatus = b.whatsappStatus || 'pending';
+    const receiptLink = `${window.location.origin}/api/bookings/${b.id}/receipt.pdf`;
     const waText = encodeURIComponent(
-      `Hello ${b.customerName}! 🎈 This is YUVI DECORATION regarding your booking ${b.id} for ${b.eventType} on ${b.eventDate}. Current status is: ${status.toUpperCase()}. Let us know if you need any assistance!`
+      `Hello ${b.customerName}! 🎈 This is YUVI DECORATION regarding your booking #${b.id} for ${b.eventType} on ${b.eventDate}.\n` +
+      `Current Status: ${status.toUpperCase()}\n` +
+      `📄 Official PDF Receipt: ${receiptLink}\n\n` +
+      `Let us know if you need any assistance!`
     );
 
     // WhatsApp Delivery Status Badge

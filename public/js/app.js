@@ -603,6 +603,7 @@ function showBookingSuccessModal(booking) {
   }
 
   if (waBtn) {
+    const receiptLink = `${window.location.origin}/api/bookings/${booking.id}/receipt.pdf`;
     const waText = encodeURIComponent(
       `🎉 *NEW BOOKING - YUVI DECORATION* 🎈\n` +
       `━━━━━━━━━━━━━━━━━━━━━\n` +
@@ -617,6 +618,8 @@ function showBookingSuccessModal(booking) {
       (booking.couponCode ? `🏷️ *Coupon:* ${booking.couponCode} (-₹${booking.discountAmount || 0})\n` : '') +
       (booking.colorTheme ? `🎨 *Colors:* ${booking.colorTheme}\n` : '') +
       (booking.notes ? `📝 *Notes:* ${booking.notes}\n` : '') +
+      `━━━━━━━━━━━━━━━━━━━━━\n` +
+      `📄 *Official PDF Receipt:* \n${receiptLink}\n` +
       `━━━━━━━━━━━━━━━━━━━━━\n` +
       `Please confirm my reservation slot!`
     );
