@@ -18,7 +18,7 @@ mongoose.set('bufferCommands', false);
 let isConnected = false;
 let lastError = null;
 let lastAttemptedUri = null;
-const CLOUD_MONGODB_URI = 'mongodb+srv://pk6926459_db_user:pritam620@cluster0.f7yszpf.mongodb.net/yuvi_decoration?retryWrites=true&w=majority';
+const CLOUD_MONGODB_URI = 'mongodb+srv://pk3713580_db_user:lucifer9836@cluster0.mvbozoc.mongodb.net/yuvi_decoration?retryWrites=true&w=majority';
 
 async function connectDB() {
   if (mongoose.connection.readyState === 1) {
