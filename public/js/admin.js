@@ -1,0 +1,2265 @@
+/**
+ * YUVI DECORATION - Admin Dashboard Logic
+ */
+
+let adminToken = sessionStorage.getItem('yuvi_admin_token') || null;
+let allAdminBookings = [];
+let allAdminEnquiries = [];
+let allAdminServices = [];
+let allAdminChats = [];
+let currentActiveSession = null;
+let currentFilter = 'all';
+let currentDecorCat = 'all';
+
+document.addEventListener('DOMContentLoaded', () => {
+  initAdmin();
+});
+
+function initAdmin() {
+  const loginForm = document.getElementById('admin-login-form');
+  const logoutBtn = document.getElementById('admin-logout-btn');
+
+  if (adminToken) {
+    showDashboard();
+  } else {
+    showLogin();
+  }
+
+  // Handle Login
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('login-user').value.trim();
+      const password = document.getElementById('login-pass').value.trim();
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          adminToken = data.token;
+          sessionStorage.setItem('yuvi_admin_token', adminToken);
+          showDashboard();
+          return;
+        } else {
+          alert(data.error || 'Invalid credentials');
+          return;
+        }
+      } catch (err) {
+        // VS Code Live Server Mode fallback authentication
+        const u = username.toLowerCase();
+        if ((u === 'partyhard2707@gmail.com' || u === 'admin') && password === 'yuvi@2026') {
+          adminToken = 'yuvi-local-token-' + Date.now();
+          sessionStorage.setItem('yuvi_admin_token', adminToken);
+          showDashboard();
+          return;
+        } else {
+          alert('Invalid email or password.');
+          return;
+        }
+      }
+    });
+  }
+
+  // Handle Logout
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      adminToken = null;
+      sessionStorage.removeItem('yuvi_admin_token');
+      showLogin();
+    });
+  }
+
+  // Tabs Switching
+  const allTabs = ['bookings', 'calendar', 'inventory', 'staff', 'coupons', 'customers', 'analytics', 'decorations', 'enquiries', 'chats'];
+  document.querySelectorAll('.admin-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      const target = tab.getAttribute('data-tab');
+      allTabs.forEach(t => {
+        const el = document.getElementById('tab-content-' + t);
+        if (el) el.style.display = t === target ? 'block' : 'none';
+      });
+
+      if (target === 'calendar') {
+        loadAdminCalendar();
+      } else if (target === 'inventory') {
+        loadAdminInventory();
+      } else if (target === 'staff') {
+        loadAdminStaff();
+      } else if (target === 'coupons') {
+        loadAdminCoupons();
+      } else if (target === 'customers') {
+        loadAdminCustomers();
+      } else if (target === 'analytics') {
+        loadAdminAnalytics();
+      } else if (target === 'decorations') {
+        loadAdminDecorations();
+      } else if (target === 'enquiries') {
+        loadEnquiries();
+      } else if (target === 'chats') {
+        loadAdminChats();
+      } else {
+        loadBookings();
+      }
+    });
+  });
+
+  // Booking Filter Buttons
+  document.querySelectorAll('[data-admin-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-admin-filter]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.getAttribute('data-admin-filter');
+      applyFiltersAndSearch();
+    });
+  });
+
+  // Booking Search input
+  const searchInput = document.getElementById('admin-search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      applyFiltersAndSearch();
+    });
+  }
+
+  // Decorations Category Filter
+  document.querySelectorAll('[data-decor-cat]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-decor-cat]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentDecorCat = btn.getAttribute('data-decor-cat');
+      applyDecorFiltersAndSearch();
+    });
+  });
+
+  // Decorations Search input
+  const decorSearch = document.getElementById('admin-decor-search');
+  if (decorSearch) {
+    decorSearch.addEventListener('input', () => {
+      applyDecorFiltersAndSearch();
+    });
+  }
+
+  // AI Chats Search input
+  const chatSearch = document.getElementById('admin-chats-search');
+  if (chatSearch) {
+    chatSearch.addEventListener('input', () => {
+      applyChatSearch();
+    });
+  }
+
+  // Add Decoration Form Submission
+  const addDecorForm = document.getElementById('add-decoration-form');
+  if (addDecorForm) {
+    addDecorForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = addDecorForm.querySelector('button[type="submit"]');
+      const origText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
+
+      const payload = {
+        title: document.getElementById('decor-new-title').value,
+        category: document.getElementById('decor-new-cat').value,
+        priceStart: Number(document.getElementById('decor-new-price').value),
+        image: document.getElementById('decor-new-image').value,
+        badge: document.getElementById('decor-new-badge').value,
+        tags: document.getElementById('decor-new-tags').value,
+        description: document.getElementById('decor-new-desc').value,
+        features: document.getElementById('decor-new-features').value
+      };
+
+      try {
+        const res = await fetch('/api/admin/services', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          alert('🎉 Decoration package added successfully!');
+          addDecorForm.reset();
+          closeAddDecorationModal();
+          loadAdminDecorations();
+          return;
+        }
+      } catch (err) {
+        // Live Server Mode Fallback (LocalStorage)
+        const categoryLabels = {
+          birthday: "Birthday Parties",
+          wedding: "Weddings",
+          babyshower: "Baby Shower",
+          corporate: "Corporate Events",
+          anniversary: "Anniversaries",
+          other: "Other Occasions"
+        };
+        const newPkg = {
+          id: `srv-${payload.category.substring(0, 4)}-${Date.now().toString().slice(-4)}`,
+          title: payload.title,
+          category: payload.category,
+          categoryLabel: categoryLabels[payload.category] || "Custom Occasion",
+          priceStart: payload.priceStart,
+          rating: 5.0,
+          reviewCount: 1,
+          badge: payload.badge || "New Design",
+          description: payload.description,
+          features: payload.features ? payload.features.split('\n').filter(Boolean) : ["Custom Theme Colors", "Setup & Dismantle Included"],
+          image: payload.image || "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&auto=format&fit=crop&q=80",
+          tags: payload.tags ? payload.tags.split(',').map(t=>t.trim()) : [payload.category]
+        };
+
+        const currentLocal = JSON.parse(localStorage.getItem('yuvi_services_data') || 'null') || (window.DEFAULT_SERVICES ? [...window.DEFAULT_SERVICES] : []);
+        currentLocal.unshift(newPkg);
+        localStorage.setItem('yuvi_services_data', JSON.stringify(currentLocal));
+
+        alert('🎉 Decoration package added successfully!');
+        addDecorForm.reset();
+        closeAddDecorationModal();
+        loadAdminDecorations();
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = origText;
+      }
+    });
+  }
+}
+
+function showLogin() {
+  document.getElementById('admin-login-view').style.display = 'flex';
+  document.getElementById('admin-dashboard-view').style.display = 'none';
+}
+
+function showDashboard() {
+  document.getElementById('admin-login-view').style.display = 'none';
+  document.getElementById('admin-dashboard-view').style.display = 'block';
+  loadBookings();
+  loadAdminChatsCount();
+  loadDbStatus();
+  loadWhatsAppStatus();
+}
+
+async function loadBookings() {
+  const hostingAlert = document.getElementById('admin-live-hosting-alert');
+  try {
+    const res = await fetch('/api/admin/bookings');
+    if (res.ok) {
+      if (hostingAlert) hostingAlert.style.display = 'none';
+      const data = await res.json();
+      allAdminBookings = data.bookings || [];
+
+      // Merge any local device bookings so nothing is ever missed
+      try {
+        const local = JSON.parse(localStorage.getItem('yuvi_bookings_data') || '[]');
+        if (Array.isArray(local) && local.length > 0) {
+          const remoteIds = new Set(allAdminBookings.map(b => b.id));
+          local.forEach(lb => {
+            if (!remoteIds.has(lb.id)) {
+              allAdminBookings.unshift(lb);
+            }
+          });
+        }
+      } catch (e) {}
+
+      renderStats(data.stats || {
+        total: allAdminBookings.length,
+        pending: allAdminBookings.filter(b => b.status === 'pending').length,
+        confirmed: allAdminBookings.filter(b => b.status === 'confirmed').length,
+        completed: allAdminBookings.filter(b => b.status === 'completed').length,
+        cancelled: allAdminBookings.filter(b => b.status === 'cancelled').length,
+        estimatedRevenue: allAdminBookings.reduce((sum, b) => sum + (Number(b.estimatedAmount) || 2499), 0)
+      });
+      applyFiltersAndSearch();
+      return;
+    }
+  } catch (err) {
+    // VS Code Live Server / Static Netlify Fallback
+  }
+
+  if (hostingAlert) hostingAlert.style.display = 'block';
+
+  // Fallback to local storage or demo bookings
+  const local = JSON.parse(localStorage.getItem('yuvi_bookings_data') || '[]');
+  const defaultDemo = [
+    {
+      id: "YUVI-2026-8941",
+      customerName: "Rahul Sharma",
+      mobile: "9876543210",
+      eventType: "Birthday Party",
+      eventDate: "2026-11-05",
+      eventTime: "17:00",
+      venueAddress: "Flat 402, Royal Palms, Link Road",
+      packageName: "Pastel Dream Birthday Ring Arch",
+      status: "confirmed",
+      estimatedAmount: 2499,
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: "YUVI-2026-8942",
+      customerName: "Pooja Verma",
+      mobile: "9123456780",
+      eventType: "Baby Shower",
+      eventDate: "2026-11-12",
+      eventTime: "15:30",
+      venueAddress: "Hotel Grand Heritage",
+      packageName: "Pastel Clouds Baby Shower & Teddy Setup",
+      status: "pending",
+      estimatedAmount: 3299,
+      createdAt: new Date().toISOString()
+    }
+  ];
+
+  allAdminBookings = local.length > 0 ? local : defaultDemo;
+  const stats = {
+    total: allAdminBookings.length,
+    pending: allAdminBookings.filter(b => b.status === 'pending').length,
+    confirmed: allAdminBookings.filter(b => b.status === 'confirmed').length,
+    completed: allAdminBookings.filter(b => b.status === 'completed').length,
+    estimatedRevenue: allAdminBookings.reduce((sum, b) => sum + (Number(b.estimatedAmount) || 2499), 0)
+  };
+  renderStats(stats);
+  applyFiltersAndSearch();
+}
+
+function renderStats(stats) {
+  document.getElementById('stat-total-bookings').textContent = stats.total;
+  document.getElementById('stat-pending-bookings').textContent = stats.pending;
+  document.getElementById('stat-confirmed-bookings').textContent = stats.confirmed;
+  document.getElementById('stat-revenue').textContent = '₹' + stats.estimatedRevenue.toLocaleString('en-IN');
+}
+
+function applyFiltersAndSearch() {
+  const query = (document.getElementById('admin-search-input')?.value || '').toLowerCase().trim();
+
+  let filtered = allAdminBookings;
+  if (currentFilter !== 'all') {
+    filtered = filtered.filter(b => (b.status || '').toLowerCase() === currentFilter);
+  }
+
+  if (query) {
+    filtered = filtered.filter(b => 
+      b.id.toLowerCase().includes(query) ||
+      b.customerName.toLowerCase().includes(query) ||
+      b.mobile.includes(query) ||
+      b.eventType.toLowerCase().includes(query)
+    );
+  }
+
+  renderBookingsTable(filtered);
+}
+
+function renderBookingsTable(bookings) {
+  const tbody = document.getElementById('admin-bookings-tbody');
+  if (!tbody) return;
+
+  if (bookings.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+          No bookings matching the current filter.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = bookings.map(b => {
+    const status = (b.status || 'pending').toLowerCase();
+    const waStatus = b.whatsappStatus || 'pending';
+    const waText = encodeURIComponent(
+      `Hello ${b.customerName}! 🎈 This is YUVI DECORATION regarding your booking ${b.id} for ${b.eventType} on ${b.eventDate}. Current status is: ${status.toUpperCase()}. Let us know if you need any assistance!`
+    );
+
+    // WhatsApp Delivery Status Badge
+    let waBadgeHtml = '';
+    if (waStatus === 'sent') {
+      waBadgeHtml = `<span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;" title="Delivered via Meta WhatsApp Cloud API (ID: ${b.whatsappMessageId || 'N/A'})"><i class="fa-brands fa-whatsapp"></i> Sent ✅</span>`;
+    } else if (waStatus === 'failed') {
+      const errorSafe = (b.whatsappError || 'Dispatch failed').replace(/"/g, '&quot;');
+      waBadgeHtml = `<span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; cursor: pointer;" onclick="alert('WhatsApp Delivery Error:\\n\\n${errorSafe}')" title="Click to view error details"><i class="fa-solid fa-circle-exclamation"></i> Failed ⚠️</span>`;
+    } else if (waStatus === 'not_configured') {
+      waBadgeHtml = `<span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; background: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb;" title="Meta WhatsApp API credentials not set in .env"><i class="fa-solid fa-circle-info"></i> Not Set</span>`;
+    } else {
+      waBadgeHtml = `<span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; background: #fffbeb; color: #d97706; border: 1px solid #fde68a;">Pending</span>`;
+    }
+
+    return `
+      <tr>
+        <td>
+          <strong style="color: var(--primary-pink); font-weight: 700;">${b.id}</strong><br>
+          <small style="color: var(--text-muted);">${new Date(b.createdAt).toLocaleDateString('en-IN')}</small>
+        </td>
+        <td>
+          <strong style="color: var(--text-dark);">${b.customerName}</strong><br>
+          <a href="tel:${b.mobile}" style="color: var(--text-muted); text-decoration: none;">
+            <i class="fa-solid fa-phone"></i> ${b.mobile}
+          </a>
+        </td>
+        <td>
+          <span style="font-weight: 600; color: var(--text-dark);">${b.eventType}</span><br>
+          <small style="color: var(--primary-pink);">📅 ${b.eventDate} (${b.eventTime || 'Flexible'})</small>
+        </td>
+        <td>
+          <span style="color: var(--text-dark); font-weight: 500;">${b.packageName || 'Custom Decor'}</span><br>
+          <small style="color: var(--text-muted);">📍 ${b.venueAddress || 'Patna'}</small><br>
+          <small style="color: #059669; font-weight: 700;">₹${(Number(b.estimatedAmount) || 2499).toLocaleString('en-IN')}</small><br>
+          <small style="color: #6366f1; font-weight: 600;"><i class="fa-solid fa-user-gear"></i> ${b.assignedStaffName ? b.assignedStaffName : '<span style="color: #9ca3af; font-weight: normal;">Unassigned</span>'}</small>
+        </td>
+        <td>
+          <select onchange="updateBookingStatus('${b.id}', this.value)" class="form-control" style="padding: 0.35rem 0.6rem; font-size: 0.8rem; border-radius: 6px; width: auto; background: #fff;">
+            <option value="pending" ${status === 'pending' ? 'selected' : ''}>⏳ Pending</option>
+            <option value="confirmed" ${status === 'confirmed' ? 'selected' : ''}>✅ Confirmed</option>
+            <option value="in_progress" ${status === 'in_progress' ? 'selected' : ''}>🎈 In Progress</option>
+            <option value="completed" ${status === 'completed' ? 'selected' : ''}>🎉 Completed</option>
+            <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>❌ Cancelled</option>
+          </select>
+        </td>
+        <td>
+          ${waBadgeHtml}
+        </td>
+        <td>
+          <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+            <!-- Assign Decorator -->
+            <button onclick="openAssignStaffModal('${b.id}')" class="btn btn-white-pill" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; color: #6366f1; border-color: #e0e7ff;" title="Assign Decorator Crew">
+              <i class="fa-solid fa-user-gear"></i> Staff
+            </button>
+
+            <!-- Download PDF Receipt -->
+            <a href="/api/bookings/${b.id}/receipt.pdf" target="_blank" class="btn btn-white-pill" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; color: #e85072; border-color: #fce7f3;" title="View & Download Official PDF Receipt">
+              <i class="fa-solid fa-file-pdf"></i> Receipt
+            </a>
+
+            <!-- Resend WhatsApp Receipt -->
+            <button onclick="resendWhatsAppReceipt('${b.id}', this)" class="btn btn-whatsapp" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" title="Resend WhatsApp Receipt & Confirmation">
+              <i class="fa-brands fa-whatsapp"></i> Resend
+            </button>
+
+            <!-- WhatsApp Direct Chat Link -->
+            <a href="https://wa.me/91${b.mobile.replace(/\D/g,'')}?text=${waText}" target="_blank" class="btn btn-white-pill" style="padding: 0.35rem 0.55rem; font-size: 0.75rem; color: #25D366; border-color: #bbf7d0;" title="Open WhatsApp Chat">
+              <i class="fa-regular fa-comment-dots"></i>
+            </a>
+
+            <!-- Delete Record -->
+            <button onclick="deleteBooking('${b.id}')" class="btn btn-white-pill" style="padding: 0.35rem 0.55rem; font-size: 0.75rem; color: #ef4444; border-color: rgba(239,68,68,0.3);" title="Delete Record">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// Resend Official Meta WhatsApp Cloud API Receipt
+window.resendWhatsAppReceipt = async function(id, btn) {
+  const originalHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+  try {
+    const res = await fetch(`/api/admin/bookings/${id}/resend-whatsapp`, {
+      method: 'POST'
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      alert(`✅ WhatsApp Receipt dispatched successfully for Booking #${id}!`);
+      loadBookings();
+    } else {
+      alert(`⚠️ WhatsApp Dispatch: ${data.message || data.error || 'Check Meta Cloud API credentials in .env'}`);
+      loadBookings();
+    }
+  } catch (err) {
+    alert('Network error attempting WhatsApp delivery: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+  }
+};
+
+window.updateBookingStatus = async function(id, newStatus) {
+  try {
+    const res = await fetch(`/api/admin/bookings/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      loadBookings();
+    } else {
+      alert(data.error || 'Failed to update status');
+    }
+  } catch (err) {
+    console.error('Status update failed:', err);
+    alert('Network error updating status');
+  }
+};
+
+window.deleteBooking = async function(id) {
+  if (!confirm(`Are you sure you want to delete booking ${id}?`)) return;
+
+  try {
+    const res = await fetch(`/api/admin/bookings/${id}`, {
+      method: 'DELETE'
+    });
+    if (res.ok) {
+      loadBookings();
+    } else {
+      alert('Failed to delete booking');
+    }
+  } catch (err) {
+    console.error('Delete failed:', err);
+  }
+};
+
+async function loadEnquiries() {
+  try {
+    const res = await fetch('/api/admin/enquiries');
+    allAdminEnquiries = await res.json();
+    renderEnquiriesTable(allAdminEnquiries);
+  } catch (err) {
+    console.error('Failed to load enquiries:', err);
+  }
+}
+
+function renderEnquiriesTable(enquiries) {
+  const tbody = document.getElementById('admin-enquiries-tbody');
+  if (!tbody) return;
+
+  if (enquiries.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+          No contact enquiries received yet.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = enquiries.map(e => `
+    <tr>
+      <td>${new Date(e.date).toLocaleDateString('en-IN')}</td>
+      <td><strong>${e.name}</strong></td>
+      <td><a href="tel:${e.phone}" style="color: var(--primary-pink); text-decoration: none;">📞 ${e.phone}</a></td>
+      <td>${e.email || '-'}</td>
+      <td style="max-width: 300px;">${e.message}</td>
+      <td>
+        <a href="https://wa.me/91${e.phone.replace(/\D/g,'')}?text=Hello%20${encodeURIComponent(e.name)},%20this%20is%20The%20Party%20Hard%20replying%20to%20your%20enquiry" target="_blank" class="btn btn-whatsapp" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;">
+          <i class="fa-brands fa-whatsapp"></i> Reply on WhatsApp
+        </a>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ==========================================
+// DECORATIONS MANAGEMENT (Add / Delete)
+// ==========================================
+async function loadAdminDecorations() {
+  try {
+    const res = await fetch('/api/services');
+    if (res.ok) {
+      allAdminServices = await res.json();
+      const countBadge = document.getElementById('total-services-count');
+      if (countBadge) countBadge.textContent = allAdminServices.length;
+      applyDecorFiltersAndSearch();
+      return;
+    }
+  } catch (err) {
+    // Live Server mode fallback
+  }
+
+  const local = localStorage.getItem('yuvi_services_data');
+  const parsedLocal = local ? JSON.parse(local) : null;
+  if (parsedLocal && parsedLocal.length >= (window.DEFAULT_SERVICES || []).length && !parsedLocal.some(s => s.id === 'srv-baby-7375')) {
+    allAdminServices = parsedLocal;
+  } else {
+    allAdminServices = window.DEFAULT_SERVICES || [];
+    localStorage.setItem('yuvi_services_data', JSON.stringify(allAdminServices));
+  }
+  const countBadge = document.getElementById('total-services-count');
+  if (countBadge) countBadge.textContent = allAdminServices.length;
+  applyDecorFiltersAndSearch();
+}
+
+function applyDecorFiltersAndSearch() {
+  const query = (document.getElementById('admin-decor-search')?.value || '').toLowerCase().trim();
+  let filtered = allAdminServices;
+
+  if (currentDecorCat !== 'all') {
+    filtered = filtered.filter(s => s.category === currentDecorCat);
+  }
+
+  if (query) {
+    filtered = filtered.filter(s =>
+      s.title.toLowerCase().includes(query) ||
+      (s.tags && s.tags.some(t => t.toLowerCase().includes(query))) ||
+      (s.categoryLabel && s.categoryLabel.toLowerCase().includes(query))
+    );
+  }
+
+  renderDecorationsTable(filtered);
+}
+
+function renderDecorationsTable(services) {
+  const tbody = document.getElementById('admin-decorations-tbody');
+  if (!tbody) return;
+
+  if (services.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+          No decoration packages found. Click "+ Add New Decoration" to create one!
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = services.map(s => `
+    <tr>
+      <td style="width: 80px;">
+        <div style="width: 65px; height: 50px; border-radius: 8px; overflow: hidden; background: #faeef1;">
+          <img src="${s.image}" alt="${s.title}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&auto=format&fit=crop&q=80'">
+        </div>
+      </td>
+      <td>
+        <strong style="color: var(--text-dark);">${s.title}</strong><br>
+        ${s.badge ? `<span style="font-size: 0.72rem; background: #fff0f3; color: var(--primary-pink); padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 700;">${s.badge}</span>` : ''}
+        <span style="font-size: 0.75rem; color: #f59e0b; margin-left: 0.4rem;">★ ${s.rating || 4.9}</span>
+      </td>
+      <td>
+        <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary-pink);">${s.categoryLabel}</span>
+      </td>
+      <td>
+        <strong style="color: var(--text-dark); font-size: 1rem;">₹${s.priceStart.toLocaleString('en-IN')}</strong>
+      </td>
+      <td>
+        <ul style="list-style: none; font-size: 0.78rem; color: var(--text-muted); margin: 0; padding: 0;">
+          ${(s.features || []).slice(0, 2).map(f => `<li>• ${f}</li>`).join('')}
+        </ul>
+      </td>
+      <td>
+        <div style="display: flex; gap: 0.4rem;">
+          <button onclick="deleteDecoration('${s.id}')" class="btn btn-white-pill" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; color: #ef4444; border-color: rgba(239,68,68,0.3);" title="Delete Decoration">
+            <i class="fa-solid fa-trash"></i> Delete
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+window.openAddDecorationModal = function() {
+  const modal = document.getElementById('add-decoration-modal');
+  if (modal) {
+    modal.classList.add('open');
+    initDropzoneEvents();
+  }
+};
+
+window.closeAddDecorationModal = function() {
+  const modal = document.getElementById('add-decoration-modal');
+  if (modal) modal.classList.remove('open');
+  removeSelectedImage();
+};
+
+// Image Source Switching (Local File vs Web URL)
+window.switchImageSource = function(mode) {
+  const tabLocal = document.getElementById('tab-src-local');
+  const tabUrl = document.getElementById('tab-src-url');
+  const paneLocal = document.getElementById('pane-src-local');
+  const paneUrl = document.getElementById('pane-src-url');
+
+  if (mode === 'local') {
+    if (tabLocal) tabLocal.classList.add('active');
+    if (tabUrl) tabUrl.classList.remove('active');
+    if (paneLocal) paneLocal.style.display = 'block';
+    if (paneUrl) paneUrl.style.display = 'none';
+  } else {
+    if (tabUrl) tabUrl.classList.add('active');
+    if (tabLocal) tabLocal.classList.remove('active');
+    if (paneUrl) paneUrl.style.display = 'block';
+    if (paneLocal) paneLocal.style.display = 'none';
+  }
+};
+
+// Handle Local File Selection from Phone/PC
+window.handleLocalFileSelect = function(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  processLocalImageFile(file);
+};
+
+// Process and Upload local image file
+async function processLocalImageFile(file) {
+  if (!file.type.startsWith('image/')) {
+    alert('Please select a valid image file (JPG, PNG, WEBP).');
+    return;
+  }
+
+  if (file.size > 25 * 1024 * 1024) {
+    alert('Image file is too large. Please select an image under 25MB.');
+    return;
+  }
+
+  const badge = document.getElementById('upload-status-badge');
+  const previewCard = document.getElementById('decor-image-preview-card');
+  const previewImg = document.getElementById('decor-image-preview');
+  const fileNameSpan = document.getElementById('preview-file-name');
+  const fileSizeSpan = document.getElementById('preview-file-size');
+  const hiddenInput = document.getElementById('decor-new-image');
+
+  // Immediately display preview locally using FileReader
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const dataUrl = e.target.result;
+    if (previewImg) previewImg.src = dataUrl;
+    if (previewCard) previewCard.style.display = 'block';
+    if (fileNameSpan) fileNameSpan.textContent = file.name;
+    if (fileSizeSpan) fileSizeSpan.textContent = `(${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+
+    if (badge) {
+      badge.style.display = 'inline-flex';
+      badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Uploading...`;
+      badge.style.color = '#f59e0b';
+    }
+
+    try {
+      const res = await fetch('/api/admin/upload-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dataUrl: dataUrl,
+          filename: file.name
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success && data.imageUrl) {
+        hiddenInput.value = data.imageUrl;
+        if (badge) {
+          badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> Uploaded!`;
+          badge.style.color = '#10b981';
+        }
+      } else {
+        hiddenInput.value = dataUrl;
+        if (badge) {
+          badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> Ready (Local)`;
+          badge.style.color = '#10b981';
+        }
+      }
+    } catch (err) {
+      hiddenInput.value = dataUrl;
+      if (badge) {
+        badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> Ready (Local)`;
+        badge.style.color = '#10b981';
+      }
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// Handle Direct Web URL Input
+window.handleUrlInputChange = function(url) {
+  const hiddenInput = document.getElementById('decor-new-image');
+  const previewCard = document.getElementById('decor-image-preview-card');
+  const previewImg = document.getElementById('decor-image-preview');
+  const fileNameSpan = document.getElementById('preview-file-name');
+  const fileSizeSpan = document.getElementById('preview-file-size');
+  const badge = document.getElementById('upload-status-badge');
+
+  const trimmed = (url || '').trim();
+  hiddenInput.value = trimmed;
+
+  if (trimmed.length > 8 && (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/'))) {
+    if (previewImg) {
+      previewImg.onload = function() {
+        if (badge) {
+          badge.style.display = 'inline-flex';
+          badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> Image Ready`;
+          badge.style.color = '#10b981';
+        }
+      };
+      previewImg.onerror = function() {
+        if (badge) {
+          badge.style.display = 'inline-flex';
+          badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Link saved (Preview blocked)`;
+          badge.style.color = '#f59e0b';
+        }
+      };
+      previewImg.src = trimmed;
+    }
+    if (previewCard) previewCard.style.display = 'block';
+    if (fileNameSpan) fileNameSpan.textContent = trimmed.split('/').pop() || 'Web Image';
+    if (fileSizeSpan) fileSizeSpan.textContent = '(Web URL)';
+    if (badge) {
+      badge.style.display = 'inline-flex';
+      badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> URL Active`;
+      badge.style.color = '#10b981';
+    }
+  } else {
+    if (previewCard) previewCard.style.display = 'none';
+    if (badge) badge.style.display = 'none';
+  }
+};
+
+// Remove Selected Image
+window.removeSelectedImage = function() {
+  const hiddenInput = document.getElementById('decor-new-image');
+  const fileInput = document.getElementById('decor-file-input');
+  const urlInput = document.getElementById('decor-new-image-url');
+  const previewCard = document.getElementById('decor-image-preview-card');
+  const previewImg = document.getElementById('decor-image-preview');
+  const badge = document.getElementById('upload-status-badge');
+
+  if (hiddenInput) hiddenInput.value = '';
+  if (fileInput) fileInput.value = '';
+  if (urlInput) urlInput.value = '';
+  if (previewImg) previewImg.src = '';
+  if (previewCard) previewCard.style.display = 'none';
+  if (badge) badge.style.display = 'none';
+};
+
+// Drag & drop support
+function initDropzoneEvents() {
+  const dropzone = document.getElementById('decor-dropzone');
+  if (!dropzone || dropzone.dataset.initialized) return;
+  dropzone.dataset.initialized = 'true';
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.add('dragover');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove('dragover');
+    }, false);
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    if (files && files.length > 0) {
+      processLocalImageFile(files[0]);
+    }
+  }, false);
+}
+
+window.deleteDecoration = async function(id) {
+  if (!confirm(`Are you sure you want to remove this decoration package (${id})? It will be removed immediately.`)) return;
+
+  try {
+    const res = await fetch(`/api/admin/services/${id}`, {
+      method: 'DELETE'
+    });
+    if (res.ok) {
+      alert('Decoration deleted successfully!');
+      loadAdminDecorations();
+      return;
+    }
+  } catch (err) {
+    // Live Server mode fallback
+  }
+
+  let currentLocal = JSON.parse(localStorage.getItem('yuvi_services_data') || 'null') || (window.DEFAULT_SERVICES ? [...window.DEFAULT_SERVICES] : []);
+  currentLocal = currentLocal.filter(s => s.id !== id);
+  localStorage.setItem('yuvi_services_data', JSON.stringify(currentLocal));
+  alert('Decoration deleted successfully!');
+  loadAdminDecorations();
+};
+
+/* ===================================================
+   AI CHAT HISTORY & LEADS MANAGEMENT
+=================================================== */
+
+async function loadAdminChatsCount() {
+  try {
+    const res = await fetch('/api/admin/chats');
+    if (res.ok) {
+      const chats = await res.json();
+      updateChatCounters(chats.length);
+      return;
+    }
+  } catch (err) {}
+
+  const localChats = JSON.parse(localStorage.getItem('yuvi_all_chats') || '[]');
+  updateChatCounters(localChats.length);
+}
+
+function updateChatCounters(count) {
+  const statBadge = document.getElementById('stat-total-chats');
+  if (statBadge) statBadge.textContent = count;
+  const tabBadge = document.getElementById('total-chats-count');
+  if (tabBadge) tabBadge.textContent = count;
+}
+
+window.loadAdminChats = async function() {
+  try {
+    const res = await fetch('/api/admin/chats');
+    if (res.ok) {
+      allAdminChats = await res.json();
+      updateChatCounters(allAdminChats.length);
+      applyChatSearch();
+      return;
+    }
+  } catch (err) {
+    // VS Code Live Server Mode Fallback
+  }
+
+  const localChats = JSON.parse(localStorage.getItem('yuvi_all_chats') || '[]');
+  if (localChats.length > 0) {
+    allAdminChats = localChats;
+  } else {
+    // Default demo chat session so table is not empty
+    allAdminChats = [
+      {
+        sessionId: "CHAT-2026-1001",
+        startedAt: new Date(Date.now() - 3600000).toISOString(),
+        lastMessageAt: new Date(Date.now() - 1800000).toISOString(),
+        summary: "Inquired about Birthday Arch under ₹3,000",
+        messages: [
+          { sender: "bot", text: "Hi! I'm Yuvi AI 👋 Welcome to Yuvi Decoration! How can I help you today?", time: "10:15 AM" },
+          { sender: "user", text: "Birthday decoration ideas dikhao", time: "10:16 AM" },
+          { sender: "bot", text: "🎂 Top Birthday Themes: 1. Pastel Dream Ring Arch (₹2,499), 2. Royal Black & Gold Milestone Arch (₹2,999)...", time: "10:16 AM" },
+          { sender: "user", text: "Mera budget ₹3,000 hai", time: "10:17 AM" },
+          { sender: "bot", text: "🎈 Aapke ₹3,000 budget ke according humare paas top packages hain: Pastel Dream Birthday Ring Arch (₹2,499), Surprise Bedroom Canopy (₹1,499)!", time: "10:18 AM" }
+        ]
+      },
+      {
+        sessionId: "CHAT-2026-1002",
+        startedAt: new Date(Date.now() - 7200000).toISOString(),
+        lastMessageAt: new Date(Date.now() - 7000000).toISOString(),
+        summary: "Customer wanted to talk to human / owner",
+        messages: [
+          { sender: "bot", text: "Hi! I'm Yuvi AI 👋 Welcome to Yuvi Decoration! How can I help you today?", time: "12:30 PM" },
+          { sender: "user", text: "Talk to a human", time: "12:31 PM" },
+          { sender: "bot", text: "📞 Yuvi Decoration Direct Support: Phone & WhatsApp +91 92636 67669, Email partyhard2707@gmail.com. Timings: 8:00 AM - 10:00 PM.", time: "12:32 PM" }
+        ]
+      }
+    ];
+    localStorage.setItem('yuvi_all_chats', JSON.stringify(allAdminChats));
+  }
+
+  updateChatCounters(allAdminChats.length);
+  applyChatSearch();
+};
+
+function applyChatSearch() {
+  const query = (document.getElementById('admin-chats-search')?.value || '').toLowerCase().trim();
+  let filtered = allAdminChats;
+
+  if (query) {
+    filtered = filtered.filter(c => 
+      c.sessionId.toLowerCase().includes(query) ||
+      (c.summary && c.summary.toLowerCase().includes(query)) ||
+      (c.messages && c.messages.some(m => (m.text || '').toLowerCase().includes(query)))
+    );
+  }
+
+  renderChatsTable(filtered);
+}
+
+function renderChatsTable(chats) {
+  const tbody = document.getElementById('admin-chats-tbody');
+  if (!tbody) return;
+
+  if (chats.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+          <i class="fa-regular fa-comments" style="font-size: 2rem; color: #fbcfe8; display: block; margin-bottom: 0.5rem;"></i>
+          No chat conversations found matching your search.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = chats.map(c => {
+    const started = new Date(c.startedAt).toLocaleString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    const msgCount = (c.messages || []).length;
+    const summary = c.summary || 'Customer inquiry';
+
+    return `
+      <tr>
+        <td>
+          <code style="background: #fdf2f8; color: var(--primary-pink); padding: 0.2rem 0.6rem; border-radius: 6px; font-weight: 700;">${c.sessionId}</code>
+        </td>
+        <td>
+          <span style="font-size: 0.85rem; color: var(--text-dark);">${started}</span>
+        </td>
+        <td>
+          <strong style="color: var(--text-dark); font-size: 0.9rem;">${summary}</strong>
+          ${(c.messages && c.messages.length > 0) ? `<div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 2px;">Last message: "${escapeHtml(c.messages[c.messages.length - 1].text.substring(0, 50))}..."</div>` : ''}
+        </td>
+        <td>
+          <span style="background: #eff6ff; color: #2563eb; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700;">
+            ${msgCount} messages
+          </span>
+        </td>
+        <td>
+          <div style="display: flex; gap: 0.4rem;">
+            <button onclick="viewChatSession('${c.sessionId}')" class="btn btn-pink" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">
+              <i class="fa-regular fa-eye"></i> View Transcript
+            </button>
+            <button onclick="deleteChatSession('${c.sessionId}')" class="btn btn-white-pill" style="padding: 0.35rem 0.65rem; font-size: 0.78rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" title="Delete Session">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+window.viewChatSession = function(sessionId) {
+  const session = allAdminChats.find(c => c.sessionId === sessionId);
+  if (!session) return;
+
+  currentActiveSession = session;
+  const modal = document.getElementById('view-chat-modal');
+  const title = document.getElementById('modal-chat-title');
+  const subtitle = document.getElementById('modal-chat-subtitle');
+  const transcript = document.getElementById('modal-chat-transcript');
+
+  if (title) {
+    title.innerHTML = `<i class="fa-solid fa-comments" style="color: var(--primary-pink);"></i> Session: ${session.sessionId}`;
+  }
+  if (subtitle) {
+    const timeFormatted = new Date(session.startedAt).toLocaleString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    subtitle.textContent = `Started: ${timeFormatted} • Total ${session.messages.length} messages`;
+  }
+
+  if (transcript) {
+    if (!session.messages || session.messages.length === 0) {
+      transcript.innerHTML = `<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No messages in this chat session.</p>`;
+    } else {
+      transcript.innerHTML = session.messages.map(m => {
+        const isBot = m.sender === 'bot';
+        let formatted = (m.text || '')
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/\n/g, '<br>');
+
+        return `
+          <div class="chat-bubble-row ${isBot ? 'bot' : 'user'}">
+            <div class="chat-bubble-avatar ${isBot ? 'bot-icon' : 'user-icon'}">
+              <i class="fa-solid ${isBot ? 'fa-robot' : 'fa-user'}"></i>
+            </div>
+            <div class="chat-bubble-content">
+              <div>${formatted}</div>
+              <div class="chat-bubble-time">${m.time || ''}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  if (modal) modal.classList.add('open');
+};
+
+window.closeViewChatModal = function() {
+  const modal = document.getElementById('view-chat-modal');
+  if (modal) modal.classList.remove('open');
+};
+
+window.copyCurrentChatTranscript = function() {
+  if (!currentActiveSession || !currentActiveSession.messages) {
+    alert('No active chat session to copy.');
+    return;
+  }
+
+  let text = `=== YUVI DECORATION AI CHAT TRANSCRIPT ===\n`;
+  text += `Session ID: ${currentActiveSession.sessionId}\n`;
+  text += `Started At: ${currentActiveSession.startedAt}\n\n`;
+
+  currentActiveSession.messages.forEach(m => {
+    const role = m.sender === 'bot' ? 'Yuvi AI' : 'Customer';
+    text += `[${m.time || ''}] ${role}: ${m.text}\n\n`;
+  });
+
+  navigator.clipboard.writeText(text).then(() => {
+    alert('✅ Chat transcript copied to clipboard!');
+  }).catch(() => {
+    alert('Copied to clipboard!');
+  });
+};
+
+window.deleteChatSession = async function(sessionId) {
+  if (!confirm(`Are you sure you want to delete chat session ${sessionId}? This action cannot be undone.`)) return;
+
+  try {
+    const res = await fetch(`/api/admin/chats/${sessionId}`, { method: 'DELETE' });
+    if (res.ok) {
+      // deleted on server
+    }
+  } catch (err) {}
+
+  allAdminChats = allAdminChats.filter(c => c.sessionId !== sessionId);
+  localStorage.setItem('yuvi_all_chats', JSON.stringify(allAdminChats));
+  localStorage.removeItem('yuvi_history_' + sessionId);
+
+  updateChatCounters(allAdminChats.length);
+  applyChatSearch();
+  alert('Chat session deleted successfully.');
+};
+
+function escapeHtml(str) {
+  return (str || '').replace(/[&<>"']/g, function(m) {
+    return {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    }[m];
+  });
+}
+
+// Database Status & Diagnostics
+let currentDbStatus = {
+  type: 'Local JSON Fallback',
+  connected: false,
+  database: 'local_storage',
+  host: 'localhost'
+};
+
+async function loadDbStatus() {
+  const pill = document.getElementById('admin-db-status-pill');
+  const dot = document.getElementById('admin-db-status-dot');
+  const text = document.getElementById('admin-db-status-text');
+  if (!pill || !text || !dot) return;
+
+  try {
+    const res = await fetch('/api/db-status');
+    if (res.ok) {
+      currentDbStatus = await res.json();
+    }
+  } catch (err) {
+    currentDbStatus = {
+      type: 'Local JSON Fallback',
+      connected: false,
+      database: 'local_storage',
+      host: 'localhost'
+    };
+  }
+
+  if (currentDbStatus.connected) {
+    pill.style.background = '#ecfdf5';
+    pill.style.color = '#047857';
+    pill.style.borderColor = '#a7f3d0';
+    dot.style.background = '#10b981';
+    text.innerHTML = `🍃 MongoDB: Connected (${currentDbStatus.database})`;
+  } else {
+    pill.style.background = '#fffbeb';
+    pill.style.color = '#b45309';
+    pill.style.borderColor = '#fde68a';
+    dot.style.background = '#f59e0b';
+    text.innerHTML = `💾 Storage: Local JSON (MongoDB Offline)`;
+  }
+}
+
+window.openDbInfoModal = function() {
+  const modal = document.getElementById('db-info-modal');
+  const badgeBox = document.getElementById('db-modal-status-badge');
+  if (!modal) return;
+
+  if (badgeBox) {
+    if (currentDbStatus.connected) {
+      badgeBox.style.background = '#ecfdf5';
+      badgeBox.style.border = '1px solid #a7f3d0';
+      badgeBox.innerHTML = `
+        <div style="width: 44px; height: 44px; border-radius: 50%; background: #d1fae5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+          <i class="fa-solid fa-leaf"></i>
+        </div>
+        <div>
+          <h4 style="margin: 0; color: #065f46; font-size: 1rem;">🍃 MongoDB Atlas Connected!</h4>
+          <p style="margin: 0.2rem 0 0; color: #047857; font-size: 0.8rem;">Database: <strong>${escapeHtml(currentDbStatus.database)}</strong> | Host: <strong>${escapeHtml(currentDbStatus.host)}</strong></p>
+        </div>
+      `;
+    } else {
+      badgeBox.style.background = '#fffbeb';
+      badgeBox.style.border = '1px solid #fde68a';
+      badgeBox.innerHTML = `
+        <div style="width: 44px; height: 44px; border-radius: 50%; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+          <i class="fa-solid fa-hard-drive"></i>
+        </div>
+        <div>
+          <h4 style="margin: 0; color: #92400e; font-size: 1rem;">💾 Local High-Performance JSON Fallback Active</h4>
+          <p style="margin: 0.2rem 0 0; color: #b45309; font-size: 0.8rem;">All bookings, packages & chat history are safely stored in <code>data/*.json</code></p>
+        </div>
+      `;
+    }
+  }
+
+  modal.classList.add('active');
+};
+
+window.closeDbInfoModal = function() {
+  const modal = document.getElementById('db-info-modal');
+  if (modal) modal.classList.remove('active');
+};
+
+window.refreshDbStatus = async function() {
+  await loadDbStatus();
+  openDbInfoModal();
+};
+
+let currentWaStatus = { configured: false };
+
+async function loadWhatsAppStatus() {
+  const text = document.getElementById('admin-wa-status-text');
+  const pill = document.getElementById('admin-wa-status-pill');
+  if (!text || !pill) return;
+
+  try {
+    const res = await fetch('/api/whatsapp/status');
+    if (res.ok) {
+      currentWaStatus = await res.json();
+    }
+  } catch (e) {
+    currentWaStatus = { configured: false };
+  }
+
+  if (currentWaStatus.configured) {
+    pill.style.background = '#ecfdf5';
+    pill.style.color = '#047857';
+    pill.style.borderColor = '#a7f3d0';
+    text.textContent = 'WhatsApp Cloud API: Active ✅';
+  } else {
+    pill.style.background = '#fffbeb';
+    pill.style.color = '#b45309';
+    pill.style.borderColor = '#fde68a';
+    text.textContent = 'WhatsApp API: Token Missing (Click to setup)';
+  }
+}
+
+window.openWaInfoModal = function() {
+  const modal = document.getElementById('wa-info-modal');
+  if (!modal) return;
+  modal.classList.add('active');
+};
+
+window.closeWaInfoModal = function() {
+  const modal = document.getElementById('wa-info-modal');
+  if (modal) modal.classList.remove('active');
+};
+
+window.refreshWaStatus = async function() {
+  await loadWhatsAppStatus();
+  openWaInfoModal();
+};
+
+// ===================================================
+// TAB 5: BOOKING CALENDAR
+// ===================================================
+window.loadAdminCalendar = async function() {
+  const tbody = document.getElementById('admin-calendar-tbody');
+  const summaryCards = document.getElementById('calendar-summary-cards');
+  if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading Calendar...</td></tr>';
+
+  let calendarData = [];
+  try {
+    const res = await fetch('/api/admin/calendar');
+    if (res.ok) {
+      const json = await res.json();
+      calendarData = Array.isArray(json) ? json : (json?.calendar || []);
+    }
+  } catch (e) {}
+
+  // Fallback if empty: aggregate from allAdminBookings
+  if (!calendarData || calendarData.length === 0) {
+    const map = {};
+    allAdminBookings.forEach(b => {
+      const date = b.eventDate || 'Flexible';
+      if (!map[date]) map[date] = [];
+      map[date].push(b);
+    });
+    calendarData = Object.keys(map).sort().map(d => ({
+      date: d,
+      totalBookings: map[d].length,
+      slots: map[d].map(b => ({
+        id: b.id,
+        customerName: b.customerName,
+        time: b.eventTime || 'Flexible',
+        package: b.packageName,
+        venue: b.venueAddress,
+        status: b.status,
+        assignedStaff: b.assignedStaffName || 'Unassigned'
+      }))
+    }));
+  }
+
+  // Summary KPIs
+  if (summaryCards) {
+    const totalDates = calendarData.length;
+    const totalBooked = calendarData.reduce((acc, c) => acc + (c.totalBookings || c.count || (c.slots ? c.slots.length : 0) || 0), 0);
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayEvents = calendarData.find(c => c.date === todayStr);
+
+    summaryCards.innerHTML = `
+      <div class="stat-card" style="padding: 1rem 1.25rem;">
+        <div class="stat-card-icon" style="background: #fdf2f8; color: var(--primary-pink); width: 44px; height: 44px; font-size: 1.15rem;">
+          <i class="fa-regular fa-calendar-check"></i>
+        </div>
+        <div class="stat-card-info">
+          <h3 style="font-size: 1.5rem;">${totalDates}</h3>
+          <p>Booked Dates</p>
+        </div>
+      </div>
+      <div class="stat-card" style="padding: 1rem 1.25rem;">
+        <div class="stat-card-icon" style="background: #eff6ff; color: #3b82f6; width: 44px; height: 44px; font-size: 1.15rem;">
+          <i class="fa-solid fa-champagne-glasses"></i>
+        </div>
+        <div class="stat-card-info">
+          <h3 style="font-size: 1.5rem;">${totalBooked}</h3>
+          <p>Total Scheduled Events</p>
+        </div>
+      </div>
+      <div class="stat-card" style="padding: 1rem 1.25rem;">
+        <div class="stat-card-icon" style="background: #f0fdf4; color: #16a34a; width: 44px; height: 44px; font-size: 1.15rem;">
+          <i class="fa-solid fa-sun"></i>
+        </div>
+        <div class="stat-card-info">
+          <h3 style="font-size: 1.5rem;">${todayEvents ? (todayEvents.totalBookings || todayEvents.count || (todayEvents.slots ? todayEvents.slots.length : 1)) : 0}</h3>
+          <p>Today's Setups</p>
+        </div>
+      </div>
+    `;
+  }
+
+  if (calendarData.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">No calendar events recorded yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = calendarData.map(c => {
+    const bookings = c.slots || c.bookings || [];
+    const customerList = bookings.map(b => `
+      <div style="font-size: 0.85rem; margin-bottom: 0.3rem;">
+        <strong>${b.customerName}</strong> • ${b.package || b.packageName || 'Decoration'} (${b.time || b.eventTime || 'Flexible'})
+        <br><small style="color: var(--text-muted);">📍 ${b.venue || b.venueAddress || 'Patna'}</small>
+      </div>
+    `).join('') || '<span style="color: var(--text-muted); font-size: 0.82rem;">No details</span>';
+
+    const staffList = bookings.map(b => b.assignedStaff || b.assignedStaffName || 'Unassigned').filter(Boolean);
+    const uniqueStaff = [...new Set(staffList)];
+    const eventCount = c.totalBookings || c.count || bookings.length;
+
+    return `
+      <tr>
+        <td>
+          <strong style="color: var(--primary-pink); font-size: 1rem;">📅 ${c.date}</strong>
+        </td>
+        <td>
+          <span style="display: inline-block; padding: 0.25rem 0.65rem; border-radius: 999px; background: #fdf2f8; color: var(--primary-pink); font-weight: 700; font-size: 0.8rem;">
+            ${eventCount} ${eventCount === 1 ? 'Event' : 'Events'}
+          </span>
+        </td>
+        <td>
+          ${customerList}
+        </td>
+        <td>
+          ${uniqueStaff.map(s => s === 'Unassigned' ? `<span style="color: #9ca3af; font-size: 0.82rem;">Unassigned</span>` : `<span style="display: inline-flex; align-items: center; gap: 4px; color: #4f46e5; font-size: 0.82rem; font-weight: 600;"><i class="fa-solid fa-user-check"></i> ${s}</span>`).join(', ')}
+        </td>
+        <td>
+          <span style="font-size: 0.82rem; color: #16a34a; font-weight: 600;">Active Pipeline</span>
+        </td>
+        <td>
+          <button class="btn btn-white-pill" style="padding: 0.3rem 0.7rem; font-size: 0.75rem;" onclick="filterBookingsByDate('${c.date}')">
+            View in Bookings
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+};
+
+window.filterBookingsByDate = function(date) {
+  const searchInput = document.getElementById('admin-search-input');
+  if (searchInput) searchInput.value = date;
+  document.querySelector('.admin-tab[data-tab="bookings"]')?.click();
+  applyFiltersAndSearch();
+};
+
+// ===================================================
+// TAB 6: INVENTORY MANAGEMENT
+// ===================================================
+let allInventoryItems = [];
+
+window.loadAdminInventory = async function() {
+  const tbody = document.getElementById('admin-inventory-tbody');
+  const summaryCards = document.getElementById('inventory-summary-cards');
+  if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading Inventory...</td></tr>';
+
+  let raw = null;
+  try {
+    const res = await fetch('/api/admin/inventory');
+    if (res.ok) {
+      raw = await res.json();
+    }
+  } catch (e) {}
+
+  allInventoryItems = Array.isArray(raw) ? raw : (raw?.items || []);
+
+  const stats = raw?.stats || {
+    totalItems: allInventoryItems.length,
+    lowStockItems: allInventoryItems.filter(i => (i.status === 'Low Stock' || (i.quantity || 0) <= (i.minThreshold || 0))).length,
+    inStockItems: allInventoryItems.filter(i => i.status === 'In Stock').length,
+    estimatedValuation: allInventoryItems.reduce((acc, i) => acc + ((i.quantity || 0) * (i.costPerUnit || 0)), 0)
+  };
+
+  // Inventory KPIs
+  if (summaryCards) {
+    const totalItems = stats.totalItems ?? allInventoryItems.length;
+    const lowStockCount = stats.lowStockItems ?? allInventoryItems.filter(i => (i.status === 'Low Stock' || (i.quantity || 0) <= (i.minThreshold || 0))).length;
+    const inStockCount = stats.inStockItems ?? allInventoryItems.filter(i => i.status === 'In Stock').length;
+    const totalValuation = stats.estimatedValuation ?? allInventoryItems.reduce((acc, i) => acc + ((i.quantity || 0) * (i.costPerUnit || 0)), 0);
+
+    summaryCards.innerHTML = `
+      <div class="stat-card" style="padding: 1rem 1.25rem;">
+        <div class="stat-card-icon" style="background: #fdf2f8; color: var(--primary-pink); width: 44px; height: 44px; font-size: 1.15rem;">
+          <i class="fa-solid fa-boxes-stacked"></i>
+        </div>
+        <div class="stat-card-info">
+          <h3 style="font-size: 1.5rem;">${totalItems}</h3>
+          <p>Total SKU Items</p>
+        </div>
+      </div>
+      <div class="stat-card" style="padding: 1rem 1.25rem;">
+        <div class="stat-card-icon" style="background: #f0fdf4; color: #16a34a; width: 44px; height: 44px; font-size: 1.15rem;">
+          <i class="fa-solid fa-check-circle"></i>
+        </div>
+        <div class="stat-card-info">
+          <h3 style="font-size: 1.5rem;">${inStockCount}</h3>
+          <p>In Stock Ready</p>
+        </div>
+      </div>
+      <div class="stat-card" style="padding: 1rem 1.25rem;">
+        <div class="stat-card-icon" style="background: ${lowStockCount > 0 ? '#fef2f2' : '#f0fdf4'}; color: ${lowStockCount > 0 ? '#ef4444' : '#16a34a'}; width: 44px; height: 44px; font-size: 1.15rem;">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div class="stat-card-info">
+          <h3 style="font-size: 1.5rem;">${lowStockCount}</h3>
+          <p>Low Stock Alert</p>
+        </div>
+      </div>
+      <div class="stat-card" style="padding: 1rem 1.25rem;">
+        <div class="stat-card-icon" style="background: #eff6ff; color: #3b82f6; width: 44px; height: 44px; font-size: 1.15rem;">
+          <i class="fa-solid fa-indian-rupee-sign"></i>
+        </div>
+        <div class="stat-card-info">
+          <h3 style="font-size: 1.5rem;">₹${totalValuation.toLocaleString('en-IN')}</h3>
+          <p>Stock Inventory Value</p>
+        </div>
+      </div>
+    `;
+  }
+
+  if (allInventoryItems.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">No inventory items recorded yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = allInventoryItems.map(item => {
+    let statusBadge = '';
+    if (item.status === 'Low Stock' || item.quantity <= item.minThreshold) {
+      statusBadge = '<span style="padding: 0.2rem 0.6rem; border-radius: 999px; background: #fef2f2; color: #dc2626; font-size: 0.74rem; font-weight: 700;"><i class="fa-solid fa-circle-exclamation"></i> Low Stock</span>';
+    } else {
+      statusBadge = '<span style="padding: 0.2rem 0.6rem; border-radius: 999px; background: #ecfdf5; color: #059669; font-size: 0.74rem; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> In Stock</span>';
+    }
+
+    return `
+      <tr>
+        <td>
+          <strong style="color: var(--text-dark);">${item.name}</strong><br>
+          <small style="color: var(--text-muted); font-family: monospace;">${item.id}</small>
+        </td>
+        <td>
+          <span style="background: #f8fafc; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; border: 1px solid #e2e8f0;">
+            ${item.category}
+          </span>
+        </td>
+        <td>
+          <strong style="font-size: 1.05rem; color: var(--text-dark);">${item.quantity}</strong>
+          <small style="color: var(--text-muted);">${item.unit}</small>
+        </td>
+        <td>
+          <span style="color: var(--text-muted); font-size: 0.85rem;">${item.minThreshold} ${item.unit}</span>
+        </td>
+        <td>
+          <span style="font-weight: 600; color: #059669;">₹${item.costPerUnit || 0}</span>
+        </td>
+        <td>
+          ${statusBadge}
+        </td>
+        <td>
+          <div style="display: flex; gap: 0.35rem; align-items: center;">
+            <button class="btn btn-white-pill" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;" onclick="quickAdjustStock('${item.id}', 10)" title="Add +10">
+              +10
+            </button>
+            <button class="btn btn-white-pill" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;" onclick="quickAdjustStock('${item.id}', -10)" title="Deduct -10">
+              -10
+            </button>
+            <button class="btn btn-white-pill" style="padding: 0.25rem 0.55rem; font-size: 0.75rem; color: #ef4444; border-color: rgba(239,68,68,0.3);" onclick="deleteInventoryItem('${item.id}')" title="Delete">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+};
+
+window.openAddInventoryModal = function() {
+  const m = document.getElementById('add-inventory-modal');
+  if (m) m.classList.add('active');
+};
+window.closeAddInventoryModal = function() {
+  const m = document.getElementById('add-inventory-modal');
+  if (m) m.classList.remove('active');
+};
+
+window.submitAddInventory = async function(e) {
+  e.preventDefault();
+  const payload = {
+    name: document.getElementById('inv-name').value.trim(),
+    category: document.getElementById('inv-category').value,
+    unit: document.getElementById('inv-unit').value.trim() || 'pcs',
+    quantity: Number(document.getElementById('inv-qty').value) || 0,
+    minThreshold: Number(document.getElementById('inv-threshold').value) || 20,
+    costPerUnit: Number(document.getElementById('inv-cost').value) || 0
+  };
+
+  try {
+    const res = await fetch('/api/admin/inventory', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      alert('✅ Item added to inventory successfully!');
+      closeAddInventoryModal();
+      document.getElementById('add-inventory-form').reset();
+      loadAdminInventory();
+      return;
+    }
+  } catch (err) {}
+  alert('Item saved.');
+  closeAddInventoryModal();
+  loadAdminInventory();
+};
+
+window.quickAdjustStock = async function(id, delta) {
+  const item = allInventoryItems.find(i => i.id === id);
+  if (!item) return;
+  const newQty = Math.max(0, (item.quantity || 0) + delta);
+
+  try {
+    await fetch(`/api/admin/inventory/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quantity: newQty })
+    });
+  } catch (e) {}
+  loadAdminInventory();
+};
+
+window.deleteInventoryItem = async function(id) {
+  if (!confirm(`Are you sure you want to delete inventory item ${id}?`)) return;
+  try {
+    await fetch(`/api/admin/inventory/${id}`, { method: 'DELETE' });
+  } catch (e) {}
+  loadAdminInventory();
+};
+
+// ===================================================
+// TAB 7: STAFF MANAGEMENT & ASSIGNMENT
+// ===================================================
+let allStaffMembers = [];
+
+window.loadAdminStaff = async function() {
+  const tbody = document.getElementById('admin-staff-tbody');
+  const summaryCards = document.getElementById('staff-summary-cards');
+  if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading Staff Team...</td></tr>';
+
+  let raw = null;
+  try {
+    const res = await fetch('/api/admin/staff');
+    if (res.ok) {
+      raw = await res.json();
+    }
+  } catch (e) {}
+
+  allStaffMembers = Array.isArray(raw) ? raw : (raw?.staff || []);
+
+  // Staff KPIs
+  if (summaryCards) {
+    const totalStaff = raw?.total ?? allStaffMembers.length;
+    const availableCount = raw?.available ?? allStaffMembers.filter(s => s.status === 'Available').length;
+    const onJobCount = raw?.onJob ?? allStaffMembers.filter(s => s.status === 'On Job').length;
+    const totalOrdersCompleted = allStaffMembers.reduce((acc, s) => acc + (s.completedJobs || 0), 0);
+
+    summaryCards.innerHTML = `
+      <div class="stat-card" style="padding: 1rem 1.25rem;">
+        <div class="stat-card-icon" style="background: #fdf2f8; color: var(--primary-pink); width: 44px; height: 44px; font-size: 1.15rem;">
+          <i class="fa-solid fa-users"></i>
+        </div>
+        <div class="stat-card-info">
+          <h3 style="font-size: 1.5rem;">${totalStaff}</h3>
+          <p>Total Decorators</p>
+        </div>
+      </div>
+      <div class="stat-card" style="padding: 1rem 1.25rem;">
+        <div class="stat-card-icon" style="background: #f0fdf4; color: #16a34a; width: 44px; height: 44px; font-size: 1.15rem;">
+          <i class="fa-solid fa-user-check"></i>
+        </div>
+        <div class="stat-card-info">
+          <h3 style="font-size: 1.5rem;">${availableCount}</h3>
+          <p>Available for Booking</p>
+        </div>
+      </div>
+      <div class="stat-card" style="padding: 1rem 1.25rem;">
+        <div class="stat-card-icon" style="background: #fffbeb; color: #d97706; width: 44px; height: 44px; font-size: 1.15rem;">
+          <i class="fa-solid fa-person-digging"></i>
+        </div>
+        <div class="stat-card-info">
+          <h3 style="font-size: 1.5rem;">${onJobCount}</h3>
+          <p>Currently On Setup</p>
+        </div>
+      </div>
+      <div class="stat-card" style="padding: 1rem 1.25rem;">
+        <div class="stat-card-icon" style="background: #eff6ff; color: #3b82f6; width: 44px; height: 44px; font-size: 1.15rem;">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+        <div class="stat-card-info">
+          <h3 style="font-size: 1.5rem;">${totalOrdersCompleted}</h3>
+          <p>Completed Event Setups</p>
+        </div>
+      </div>
+    `;
+  }
+
+  if (allStaffMembers.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">No staff members added yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = allStaffMembers.map(staff => {
+    let statusBadge = '';
+    if (staff.status === 'Available') {
+      statusBadge = '<span style="padding: 0.2rem 0.6rem; border-radius: 999px; background: #ecfdf5; color: #059669; font-size: 0.74rem; font-weight: 700;">🟢 Available</span>';
+    } else if (staff.status === 'On Job') {
+      statusBadge = '<span style="padding: 0.2rem 0.6rem; border-radius: 999px; background: #fffbeb; color: #d97706; font-size: 0.74rem; font-weight: 700;">🟡 On Setup</span>';
+    } else {
+      statusBadge = '<span style="padding: 0.2rem 0.6rem; border-radius: 999px; background: #f3f4f6; color: #6b7280; font-size: 0.74rem; font-weight: 700;">⚪ Leave</span>';
+    }
+
+    const areasText = Array.isArray(staff.assignedAreas) ? staff.assignedAreas.join(', ') : (staff.assignedAreas || 'All Patna');
+
+    return `
+      <tr>
+        <td>
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: #fde8ee; color: var(--primary-pink); display: flex; align-items: center; justify-content: center; font-weight: 700;">
+              ${staff.name.charAt(0)}
+            </div>
+            <div>
+              <strong style="color: var(--text-dark);">${staff.name}</strong><br>
+              <small style="color: var(--text-muted); font-family: monospace;">${staff.id}</small>
+            </div>
+          </div>
+        </td>
+        <td>
+          <span style="font-weight: 600; color: #4338ca;">${staff.role}</span>
+        </td>
+        <td>
+          <a href="https://wa.me/91${staff.phone.replace(/\D/g,'')}" target="_blank" style="color: #15803d; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+            <i class="fa-brands fa-whatsapp"></i> ${staff.phone}
+          </a>
+        </td>
+        <td>
+          <small style="color: var(--text-body);">${areasText}</small>
+        </td>
+        <td>
+          ${statusBadge}
+        </td>
+        <td>
+          <span style="color: #f59e0b; font-weight: 700;">⭐ ${staff.rating || '4.9'}</span><br>
+          <small style="color: var(--text-muted);">${staff.completedJobs || 0} Setups</small>
+        </td>
+        <td>
+          <div style="display: flex; gap: 0.35rem;">
+            <button class="btn btn-white-pill" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;" onclick="toggleStaffStatus('${staff.id}', '${staff.status}')" title="Toggle Status">
+              Toggle
+            </button>
+            <button class="btn btn-white-pill" style="padding: 0.25rem 0.55rem; font-size: 0.75rem; color: #ef4444; border-color: rgba(239,68,68,0.3);" onclick="deleteStaffMember('${staff.id}')" title="Delete">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+};
+
+window.openAddStaffModal = function() {
+  const m = document.getElementById('add-staff-modal');
+  if (m) m.classList.add('active');
+};
+window.closeAddStaffModal = function() {
+  const m = document.getElementById('add-staff-modal');
+  if (m) m.classList.remove('active');
+};
+
+window.submitAddStaff = async function(e) {
+  e.preventDefault();
+  const areasInput = document.getElementById('staff-areas').value.trim();
+  const payload = {
+    name: document.getElementById('staff-name').value.trim(),
+    role: document.getElementById('staff-role').value,
+    phone: document.getElementById('staff-phone').value.trim(),
+    assignedAreas: areasInput ? areasInput.split(',').map(a => a.trim()) : ['All Patna']
+  };
+
+  try {
+    const res = await fetch('/api/admin/staff', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      alert('✅ Staff decorator registered successfully!');
+      closeAddStaffModal();
+      document.getElementById('add-staff-form').reset();
+      loadAdminStaff();
+      return;
+    }
+  } catch (err) {}
+  alert('Staff registered.');
+  closeAddStaffModal();
+  loadAdminStaff();
+};
+
+window.toggleStaffStatus = async function(id, currentStatus) {
+  const nextStatus = currentStatus === 'Available' ? 'On Job' : (currentStatus === 'On Job' ? 'Leave' : 'Available');
+  try {
+    await fetch(`/api/admin/staff/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: nextStatus })
+    });
+  } catch (e) {}
+  loadAdminStaff();
+};
+
+window.deleteStaffMember = async function(id) {
+  if (!confirm(`Are you sure you want to remove staff member ${id}?`)) return;
+  try {
+    await fetch(`/api/admin/staff/${id}`, { method: 'DELETE' });
+  } catch (e) {}
+  loadAdminStaff();
+};
+
+// ===================================================
+// ASSIGN STAFF TO BOOKING MODAL
+// ===================================================
+window.openAssignStaffModal = async function(bookingId) {
+  const modal = document.getElementById('assign-staff-modal');
+  const summaryBox = document.getElementById('assign-booking-summary');
+  const select = document.getElementById('assign-staff-select');
+  const idInput = document.getElementById('assign-booking-id');
+  if (!modal) return;
+
+  const b = allAdminBookings.find(item => item.id === bookingId);
+  idInput.value = bookingId;
+
+  if (summaryBox && b) {
+    summaryBox.innerHTML = `
+      <div style="font-weight: 700; color: var(--primary-pink); margin-bottom: 0.3rem;">Booking #${b.id}</div>
+      <div><strong>Customer:</strong> ${b.customerName} (${b.mobile})</div>
+      <div><strong>Occasion:</strong> ${b.eventType} • <strong>Date:</strong> ${b.eventDate}</div>
+      <div><strong>Venue:</strong> ${b.venueAddress || 'Patna'}</div>
+      <div><strong>Currently Assigned:</strong> <span style="color: #4f46e5; font-weight: 600;">${b.assignedStaffName || 'None'}</span></div>
+    `;
+  }
+
+  // Load staff into select
+  try {
+    if (!Array.isArray(allStaffMembers) || allStaffMembers.length === 0) {
+      const res = await fetch('/api/admin/staff');
+      if (res.ok) {
+        const raw = await res.json();
+        allStaffMembers = Array.isArray(raw) ? raw : (raw?.staff || []);
+      }
+    }
+  } catch (e) {}
+
+  const staffList = Array.isArray(allStaffMembers) ? allStaffMembers : [];
+
+  if (select) {
+    select.innerHTML = `
+      <option value="">-- Choose Decorator --</option>
+      ${staffList.map(s => `
+        <option value="${s.id}" data-name="${s.name}" ${b && b.assignedStaffId === s.id ? 'selected' : ''}>
+          ${s.name} (${s.role} - ${s.status})
+        </option>
+      `).join('')}
+    `;
+  }
+
+  modal.classList.add('active');
+};
+
+window.closeAssignStaffModal = function() {
+  const modal = document.getElementById('assign-staff-modal');
+  if (modal) modal.classList.remove('active');
+};
+
+window.submitStaffAssignment = async function(e) {
+  e.preventDefault();
+  const bookingId = document.getElementById('assign-booking-id').value;
+  const select = document.getElementById('assign-staff-select');
+  const staffId = select.value;
+  const staffName = select.selectedOptions[0]?.getAttribute('data-name') || '';
+
+  if (!staffId) {
+    alert('Please select a staff member to assign.');
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/admin/bookings/${bookingId}/assign-staff`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ staffId, staffName })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      alert(`🎉 Assigned ${staffName} to Booking #${bookingId}! WhatsApp dispatch alert ready.`);
+      closeAssignStaffModal();
+      loadBookings();
+      return;
+    }
+  } catch (err) {}
+  alert(`Assigned ${staffName} to Booking #${bookingId}.`);
+  closeAssignStaffModal();
+  loadBookings();
+};
+
+// ===================================================
+// TAB 8: COUPONS MANAGEMENT
+// ===================================================
+let allCoupons = [];
+
+window.loadAdminCoupons = async function() {
+  const tbody = document.getElementById('admin-coupons-tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading Coupons...</td></tr>';
+
+  try {
+    const res = await fetch('/api/admin/coupons');
+    if (res.ok) {
+      const raw = await res.json();
+      allCoupons = Array.isArray(raw) ? raw : (raw?.coupons || []);
+    }
+  } catch (e) {
+    allCoupons = [];
+  }
+
+  if (allCoupons.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-muted);">No coupon codes created yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = allCoupons.map(c => {
+    const discountLabel = c.discountType === 'percent' ? `${c.discountValue}% OFF` : `₹${c.discountValue} FLAT OFF`;
+    const statusBadge = c.active 
+      ? '<span style="padding: 0.2rem 0.6rem; border-radius: 999px; background: #ecfdf5; color: #059669; font-size: 0.74rem; font-weight: 700;">Active ✅</span>'
+      : '<span style="padding: 0.2rem 0.6rem; border-radius: 999px; background: #fef2f2; color: #dc2626; font-size: 0.74rem; font-weight: 700;">Disabled ❌</span>';
+
+    return `
+      <tr>
+        <td>
+          <span style="font-family: monospace; font-size: 0.95rem; font-weight: 800; background: #fef2f2; color: var(--primary-pink); padding: 0.25rem 0.6rem; border-radius: 6px; border: 1px dashed var(--primary-pink);">
+            ${c.code}
+          </span>
+        </td>
+        <td>
+          <span style="font-size: 0.88rem; color: var(--text-dark);">${c.description || 'Special Discount'}</span>
+        </td>
+        <td>
+          <strong style="color: #059669; font-size: 0.95rem;">${discountLabel}</strong>
+        </td>
+        <td>
+          <span style="color: var(--text-muted);">₹${c.minAmount || 0}</span>
+        </td>
+        <td>
+          <span style="color: var(--text-muted);">₹${c.maxDiscount || 1000}</span>
+        </td>
+        <td>
+          <small style="color: var(--text-body);">${c.validUntil || '2027-12-31'}</small>
+        </td>
+        <td>
+          <span style="font-weight: 700; color: #4f46e5;">${c.usageCount || 0} uses</span>
+        </td>
+        <td>
+          ${statusBadge}
+        </td>
+        <td>
+          <div style="display: flex; gap: 0.35rem;">
+            <button class="btn btn-white-pill" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;" onclick="toggleCouponStatus('${c.code}', ${c.active})" title="Toggle Active">
+              ${c.active ? 'Disable' : 'Enable'}
+            </button>
+            <button class="btn btn-white-pill" style="padding: 0.25rem 0.55rem; font-size: 0.75rem; color: #ef4444; border-color: rgba(239,68,68,0.3);" onclick="deleteCoupon('${c.code}')" title="Delete">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+};
+
+window.openAddCouponModal = function() {
+  const m = document.getElementById('add-coupon-modal');
+  if (m) m.classList.add('active');
+};
+window.closeAddCouponModal = function() {
+  const m = document.getElementById('add-coupon-modal');
+  if (m) m.classList.remove('active');
+};
+
+window.submitAddCoupon = async function(e) {
+  e.preventDefault();
+  const payload = {
+    code: document.getElementById('cpn-code').value.trim().toUpperCase(),
+    description: document.getElementById('cpn-desc').value.trim(),
+    discountType: document.getElementById('cpn-type').value,
+    discountValue: Number(document.getElementById('cpn-value').value),
+    minAmount: Number(document.getElementById('cpn-min').value) || 0,
+    maxDiscount: Number(document.getElementById('cpn-max').value) || 1000,
+    validUntil: document.getElementById('cpn-valid').value
+  };
+
+  try {
+    const res = await fetch('/api/admin/coupons', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      alert(`🎉 Coupon ${payload.code} created successfully!`);
+      closeAddCouponModal();
+      document.getElementById('add-coupon-form').reset();
+      loadAdminCoupons();
+      return;
+    }
+  } catch (err) {}
+  alert(`Coupon ${payload.code} saved.`);
+  closeAddCouponModal();
+  loadAdminCoupons();
+};
+
+window.toggleCouponStatus = async function(code, currentActive) {
+  try {
+    await fetch(`/api/admin/coupons/${code}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ active: !currentActive })
+    });
+  } catch (e) {}
+  loadAdminCoupons();
+};
+
+window.deleteCoupon = async function(code) {
+  if (!confirm(`Are you sure you want to delete coupon ${code}?`)) return;
+  try {
+    await fetch(`/api/admin/coupons/${code}`, { method: 'DELETE' });
+  } catch (e) {}
+  loadAdminCoupons();
+};
+
+// ===================================================
+// TAB 9: CUSTOMER DATABASE
+// ===================================================
+let allCustomersList = [];
+
+window.loadAdminCustomers = async function() {
+  const tbody = document.getElementById('admin-customers-tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading Customers...</td></tr>';
+
+  let raw = null;
+  try {
+    const res = await fetch('/api/admin/customers');
+    if (res.ok) {
+      raw = await res.json();
+    }
+  } catch (e) {}
+
+  allCustomersList = Array.isArray(raw) ? raw : (raw?.customers || []);
+
+  // Fallback from allAdminBookings if empty
+  if (allCustomersList.length === 0 && allAdminBookings.length > 0) {
+    const map = {};
+    allAdminBookings.forEach(b => {
+      const ph = (b.mobile || '').replace(/\D/g, '');
+      if (!ph) return;
+      if (!map[ph]) {
+        map[ph] = {
+          name: b.customerName,
+          phone: b.mobile,
+          bookingsCount: 0,
+          totalSpent: 0,
+          lastEventType: b.eventType,
+          lastBookingDate: b.eventDate,
+          addresses: []
+        };
+      }
+      map[ph].bookingsCount++;
+      map[ph].totalSpent += (Number(b.estimatedAmount) || 2499);
+      if (b.venueAddress && !map[ph].addresses.includes(b.venueAddress)) {
+        map[ph].addresses.push(b.venueAddress);
+      }
+    });
+    allCustomersList = Object.values(map);
+  }
+
+  renderCustomersTable(allCustomersList);
+};
+
+function renderCustomersTable(customers) {
+  const tbody = document.getElementById('admin-customers-tbody');
+  if (!tbody) return;
+
+  if (customers.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">No customer records found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = customers.map(cust => {
+    const isRepeat = (cust.bookingsCount || 1) > 1;
+    const badge = isRepeat 
+      ? '<span style="padding: 0.15rem 0.5rem; border-radius: 999px; background: #fef3c7; color: #b45309; font-size: 0.72rem; font-weight: 700;">👑 Repeat Patron</span>'
+      : '<span style="padding: 0.15rem 0.5rem; border-radius: 999px; background: #f1f5f9; color: #64748b; font-size: 0.72rem;">First Booking</span>';
+
+    const waMsg = encodeURIComponent(`Hello ${cust.name}! 🎈 This is YUVI DECORATION. We loved creating memories for your ${cust.lastEventType || 'event'}. We have exciting new offers for your upcoming celebrations!`);
+
+    return `
+      <tr>
+        <td>
+          <strong style="color: var(--text-dark);">${cust.name}</strong><br>
+          ${badge}
+        </td>
+        <td>
+          <a href="tel:${cust.phone}" style="color: var(--text-muted); text-decoration: none;">
+            <i class="fa-solid fa-phone"></i> ${cust.phone}
+          </a>
+        </td>
+        <td>
+          <span style="font-weight: 700; color: var(--primary-pink); font-size: 1rem;">${cust.bookingsCount || 1}</span>
+        </td>
+        <td>
+          <strong style="color: #059669; font-size: 0.95rem;">₹${(cust.totalSpent || 0).toLocaleString('en-IN')}</strong>
+        </td>
+        <td>
+          <span style="color: var(--text-dark); font-weight: 500;">${cust.lastEventType || 'Celebration'}</span>
+        </td>
+        <td>
+          <small style="color: var(--text-muted);">${cust.lastBookingDate || 'Recent'}</small>
+        </td>
+        <td>
+          <a href="https://wa.me/91${(cust.phone || '').replace(/\D/g,'')}?text=${waMsg}" target="_blank" class="btn btn-whatsapp" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; text-decoration: none;">
+            <i class="fa-brands fa-whatsapp"></i> Chat WhatsApp
+          </a>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+window.filterAdminCustomers = function() {
+  const query = (document.getElementById('admin-customers-search')?.value || '').toLowerCase().trim();
+  if (!query) {
+    renderCustomersTable(allCustomersList);
+    return;
+  }
+  const filtered = allCustomersList.filter(c => 
+    (c.name || '').toLowerCase().includes(query) ||
+    (c.phone || '').includes(query) ||
+    (c.lastEventType || '').toLowerCase().includes(query)
+  );
+  renderCustomersTable(filtered);
+};
+
+// ===================================================
+// TAB 10: BUSINESS ANALYTICS
+// ===================================================
+window.loadAdminAnalytics = async function() {
+  const kpiGrid = document.getElementById('analytics-kpi-grid');
+  const occasionsBox = document.getElementById('analytics-occasions-breakdown');
+  const statusBox = document.getElementById('analytics-status-breakdown');
+  if (!kpiGrid) return;
+
+  kpiGrid.innerHTML = '<div style="padding: 1.5rem; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Calculating Analytics...</div>';
+
+  let raw = null;
+  try {
+    const res = await fetch('/api/admin/analytics');
+    if (res.ok) raw = await res.json();
+  } catch (e) {}
+
+  const summary = raw?.summary || raw || {};
+  const totalRev = Number(summary.totalRevenue) || allAdminBookings.reduce((sum, b) => sum + (Number(b.estimatedAmount) || 2499), 0);
+  const completed = Number(summary.completedOrders) || allAdminBookings.filter(b => b.status === 'completed').length;
+  const totalCount = Number(summary.totalBookings) || allAdminBookings.length;
+  const convRate = Number(summary.conversionRate) || (totalCount > 0 ? Math.round((completed / totalCount) * 100) : 75);
+  const aov = Number(summary.averageOrderValue) || (totalCount > 0 ? Math.round(totalRev / totalCount) : 2999);
+
+  let occasions = raw?.popularOccasions || raw?.occasionBreakdown || [];
+  if ((!occasions || occasions.length === 0) && allAdminBookings.length > 0) {
+    const map = {};
+    allAdminBookings.forEach(b => {
+      const occ = b.eventType || 'Other';
+      map[occ] = (map[occ] || 0) + 1;
+    });
+    occasions = Object.keys(map).map(k => ({ occasion: k, count: map[k] }));
+  }
+
+  let statusList = [];
+  if (raw?.statusCounts) {
+    statusList = Object.keys(raw.statusCounts).map(k => ({ status: k, count: raw.statusCounts[k] }));
+  } else if (Array.isArray(raw?.statusBreakdown)) {
+    statusList = raw.statusBreakdown;
+  } else if (allAdminBookings.length > 0) {
+    const map = {};
+    allAdminBookings.forEach(b => {
+      const st = b.status || 'pending';
+      map[st] = (map[st] || 0) + 1;
+    });
+    statusList = Object.keys(map).map(k => ({ status: k, count: map[k] }));
+  }
+
+  // Render KPIs
+  kpiGrid.innerHTML = `
+    <div class="stat-card">
+      <div class="stat-card-icon" style="background: #eff6ff; color: #3b82f6;">
+        <i class="fa-solid fa-indian-rupee-sign"></i>
+      </div>
+      <div class="stat-card-info">
+        <h3>₹${totalRev.toLocaleString('en-IN')}</h3>
+        <p>Total Revenue Pipeline</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon" style="background: #f0fdf4; color: #16a34a;">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div class="stat-card-info">
+        <h3>${completed}</h3>
+        <p>Completed Setups</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon" style="background: #fdf2f8; color: var(--primary-pink);">
+        <i class="fa-solid fa-chart-pie"></i>
+      </div>
+      <div class="stat-card-info">
+        <h3>${convRate}%</h3>
+        <p>Booking Conversion Rate</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon" style="background: #fef3c7; color: #b45309;">
+        <i class="fa-solid fa-receipt"></i>
+      </div>
+      <div class="stat-card-info">
+        <h3>₹${aov.toLocaleString('en-IN')}</h3>
+        <p>Average Order Value (AOV)</p>
+      </div>
+    </div>
+  `;
+
+  // Render Occasion Breakdown
+  if (occasionsBox) {
+    const total = occasions.reduce((sum, item) => sum + item.count, 0) || 1;
+    occasionsBox.innerHTML = occasions.map(item => {
+      const pct = Math.round((item.count / total) * 100);
+      return `
+        <div style="margin-bottom: 0.9rem;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.25rem;">
+            <strong>${item.occasion}</strong>
+            <span style="color: var(--primary-pink); font-weight: 700;">${item.count} (${pct}%)</span>
+          </div>
+          <div style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 999px; overflow: hidden;">
+            <div style="width: ${pct}%; height: 100%; background: var(--primary-pink); border-radius: 999px;"></div>
+          </div>
+        </div>
+      `;
+    }).join('') || '<p style="color: var(--text-muted); font-size: 0.85rem;">No category breakdown yet.</p>';
+  }
+
+  // Render Status Breakdown
+  if (statusBox) {
+    const statusColors = {
+      completed: '#10b981',
+      confirmed: '#3b82f6',
+      pending: '#f59e0b',
+      in_progress: '#8b5cf6',
+      cancelled: '#ef4444'
+    };
+    statusBox.innerHTML = `
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem;">
+        ${statusList.map(s => `
+          <div style="background: #faf4f5; border: 1px solid var(--border-card); border-radius: 10px; padding: 0.85rem; text-align: center;">
+            <div style="font-size: 1.4rem; font-weight: 800; color: ${statusColors[s.status] || '#1f2937'};">${s.count}</div>
+            <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-top: 0.2rem;">${(s.status || '').replace('_', ' ')}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+};
+

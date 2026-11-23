@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>The Party Hard 🎈 | Decorate Your Happiness • Premium Balloon Decoration Services</title>
+  <meta name="description" content="At The Party Hard, we turn your dreams into beautiful celebrations. Premium balloon decoration for Birthdays, Weddings, Baby Showers, Anniversaries & Corporate Events.">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎈</text></svg>">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Ambient Floating Background Wrapper (Strictly Contained) -->
+  <div class="ambient-decor-wrapper" aria-hidden="true">
+    <canvas id="ambient-canvas"></canvas>
+    <div class="bg-decor-blob-left"></div>
+    <div class="bg-decor-blob-right"></div>
+  </div>
+
+  <!-- ===================================================
+       NAVBAR (Exact Match to User Reference)
+  =================================================== -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <!-- Brand Logo -->
+      <a href="#home" class="brand-logo">
+        <svg class="logo-balloons-svg" viewBox="0 0 48 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Pink Balloon Left -->
+          <ellipse cx="18" cy="20" rx="11" ry="14" fill="#F8B4C4"/>
+          <ellipse cx="15" cy="16" rx="3.5" ry="5.5" fill="#FFFFFF" fill-opacity="0.45"/>
+          <path d="M18 34L16.5 36.5H19.5L18 34Z" fill="#E85072"/>
+          <path d="M18 36.5C18 42 22 45 23 50" stroke="#E85072" stroke-width="1.2" stroke-linecap="round"/>
+
+          <!-- Cyan Balloon Middle Back -->
+          <ellipse cx="30" cy="17" rx="10.5" ry="13.5" fill="#A5E5E0"/>
+          <ellipse cx="27.5" cy="13.5" rx="3" ry="5" fill="#FFFFFF" fill-opacity="0.5"/>
+          <path d="M30 30.5L28.5 33H31.5L30 30.5Z" fill="#38B2AC"/>
+          <path d="M30 33C30 39 25 43 23 50" stroke="#38B2AC" stroke-width="1.2" stroke-linecap="round"/>
+
+          <!-- Peach / Orange Balloon Front Right -->
+          <ellipse cx="24" cy="25" rx="11" ry="14" fill="#FFC9A8"/>
+          <ellipse cx="21" cy="21" rx="3.5" ry="5.5" fill="#FFFFFF" fill-opacity="0.45"/>
+          <path d="M24 39L22.5 41.5H25.5L24 39Z" fill="#DD6B20"/>
+          <path d="M24 41.5C24 45 23 48 23 50" stroke="#DD6B20" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+
+        <div class="logo-text-col">
+          <div class="logo-brand-name">THE PARTY<span> HARD</span></div>
+          <div class="logo-tagline">Decorate Your Happiness</div>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <ul class="nav-links">
+        <li><a href="#home" class="active">Home</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#packages">Packages</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+
+      <!-- Nav Action CTAs -->
+      <div class="nav-actions">
+        <button class="btn-welcome-sparkle" onclick="showWelcomeModal(true)" title="Welcome Greeting & Offers">
+          <span class="sparkle-emoji">🎉</span> <span class="welcome-btn-text">Welcome</span>
+        </button>
+        <button class="nav-icon-btn nav-search-btn" title="Search services" onclick="focusSearch()">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <button class="btn btn-pink nav-book-btn" onclick="openBookingModalForPackage('')">
+          Book Now <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <button class="mobile-toggle" aria-label="Toggle Navigation">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===================================================
+       HERO SECTION (Exact Match to User Reference)
+  =================================================== -->
+  <header class="hero-section" id="home">
+    <div class="container hero-grid">
+      <!-- Left Column: Content -->
+      <div class="hero-content">
+        <div class="eyebrow-tag">
+          <i class="fa-solid fa-heart heart-icon"></i>
+          <span>PREMIUM BALLOON DECORATION SERVICES</span>
+        </div>
+
+        <h1 class="hero-title">
+          Make Every Moment <br>
+          <span class="text-pink">More Special</span> <span class="heart-outline">♡</span>
+        </h1>
+
+        <p class="hero-desc">
+          At The Party Hard, we turn your dreams into beautiful celebrations. From birthdays to weddings, we create stunning balloon decorations that add magic to your special moments.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="hero-cta-group">
+          <button class="btn btn-pink" onclick="openBookingModalForPackage('')">
+            <i class="fa-regular fa-calendar-check"></i> Book Now <i class="fa-solid fa-arrow-right"></i>
+          </button>
+          <a href="#gallery" class="btn btn-white-pill">
+            <i class="fa-regular fa-images"></i> Explore Gallery
+          </a>
+        </div>
+
+        <!-- Trust / Highlight Badges directly below CTAs -->
+        <div class="hero-features-row">
+          <div class="feature-badge-item">
+            <div class="feature-badge-icon pink">
+              <i class="fa-solid fa-shield-heart"></i>
+            </div>
+            <div class="feature-badge-text">
+              Premium Quality<br>Balloons
+            </div>
+          </div>
+
+          <div class="feature-badge-item">
+            <div class="feature-badge-icon orange">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <div class="feature-badge-text">
+              Creative & Unique<br>Designs
+            </div>
+          </div>
+
+          <div class="feature-badge-item">
+            <div class="feature-badge-icon mint">
+              <i class="fa-regular fa-clock"></i>
+            </div>
+            <div class="feature-badge-text">
+              On-Time<br>Delivery
+            </div>
+          </div>
+
+          <div class="feature-badge-item">
+            <div class="feature-badge-icon heart">
+              <i class="fa-regular fa-heart"></i>
+            </div>
+            <div class="feature-badge-text">
+              Customer<br>Satisfaction
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Visual Showcase + Floating AI Assistant -->
+      <div class="hero-visual-wrapper">
+        <div class="hero-main-card">
+          <img src="images/hero-banner.png" alt="Happy Birthday Luxury Balloon Decoration Setup by The Party Hard">
+          <div class="hero-card-tag">
+            <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+            <span>Featured Luxury Birthday Setup</span>
+          </div>
+
+          <!-- Rotating Celebration Seal Badge -->
+          <div class="hero-rotating-seal" aria-hidden="true">
+            <svg class="hero-seal-svg" viewBox="0 0 100 100">
+              <path id="seal-path" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none"/>
+              <text font-size="8.8" font-weight="800" fill="#e85072" letter-spacing="1.8">
+                <textPath href="#seal-path" startOffset="0%">
+                  • THE PARTY HARD • PATNA'S #1 LUXURY DECOR
+                </textPath>
+              </text>
+            </svg>
+            <div class="hero-seal-center">
+              <i class="fa-solid fa-crown"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- FLOATING AI ASSISTANT CARD (Rendered on Hero exactly as in Reference Image) -->
+        <div class="hero-ai-card" id="hero-ai-widget">
+          <div class="ai-card-header">
+            <div class="ai-card-title">
+              <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+              <span>Party Hard AI Assistant</span>
+              <span class="ai-status-indicator">● Online</span>
+            </div>
+            <button class="chat-close-btn" style="font-size: 1rem;" onclick="hideHeroAiCard()">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <!-- Cute AI Bot Avatar -->
+          <div class="ai-avatar-center">
+            <i class="fa-solid fa-robot" style="font-size: 1.8rem; color: #3b82f6;"></i>
+          </div>
+
+          <div class="ai-greeting-text">Hi! I'm Party Hard AI, 🎈</div>
+          <div class="ai-sub-greeting">How can I help you today?</div>
+
+          <!-- 6 Action Prompt Buttons (Exact matching to uploaded image) -->
+          <div class="ai-prompts-stack">
+            <button class="ai-prompt-btn" onclick="askAiPrompt('Show me birthday decoration ideas')">
+              Show me birthday decoration ideas
+            </button>
+            <button class="ai-prompt-btn" onclick="askAiPrompt('What are your packages & prices?')">
+              What are your packages & prices?
+            </button>
+            <button class="ai-prompt-btn" onclick="askAiPrompt('Book a decoration for wedding')">
+              Book a decoration for wedding
+            </button>
+            <button class="ai-prompt-btn" onclick="askAiPrompt('Show gallery photos')">
+              Show gallery photos
+            </button>
+            <button class="ai-prompt-btn" onclick="askAiPrompt('Check booking status')">
+              Check booking status
+            </button>
+            <button class="ai-prompt-btn" onclick="askAiPrompt('Talk to a human')">
+              Talk to a human
+            </button>
+          </div>
+
+          <!-- Mini Input Box -->
+          <form onsubmit="handleHeroAiSubmit(event)">
+            <div class="ai-mini-input-box">
+              <input type="text" id="hero-ai-input" class="ai-mini-input" placeholder="Type your message..." autocomplete="off">
+              <button type="submit" class="ai-mini-send" title="Send message">
+                <i class="fa-solid fa-paper-plane"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================
+       ANIMATED FESTIVE MARQUEE TICKER RIBBON
+  =================================================== -->
+  <div class="party-ticker-wrap">
+    <div class="party-ticker-track">
+      <div class="ticker-item"><span class="ticker-dot">🎈</span> Patna's #1 Premium Balloon Decorators</div>
+      <div class="ticker-item"><span class="ticker-dot">⚡</span> 2-Hour Express Delivery in Patna</div>
+      <div class="ticker-item"><span class="ticker-dot">✨</span> Free LED Neon Sign Setup with Ring Arches</div>
+      <div class="ticker-item"><span class="ticker-dot">🔒</span> Zero Advance Needed to Lock Your Slot</div>
+      <div class="ticker-item"><span class="ticker-dot">💖</span> 4.9★ Rated by 120+ Families</div>
+      <div class="ticker-item"><span class="ticker-dot">🎂</span> Birthday • Wedding • Baby Shower • Anniversary</div>
+      <div class="ticker-item"><span class="ticker-dot">📞</span> Direct WhatsApp Support: +91 92636 67669</div>
+      <!-- Seamless loop duplicate -->
+      <div class="ticker-item"><span class="ticker-dot">🎈</span> Patna's #1 Premium Balloon Decorators</div>
+      <div class="ticker-item"><span class="ticker-dot">⚡</span> 2-Hour Express Delivery in Patna</div>
+      <div class="ticker-item"><span class="ticker-dot">✨</span> Free LED Neon Sign Setup with Ring Arches</div>
+      <div class="ticker-item"><span class="ticker-dot">🔒</span> Zero Advance Needed to Lock Your Slot</div>
+      <div class="ticker-item"><span class="ticker-dot">💖</span> 4.9★ Rated by 120+ Families</div>
+      <div class="ticker-item"><span class="ticker-dot">🎂</span> Birthday • Wedding • Baby Shower • Anniversary</div>
+      <div class="ticker-item"><span class="ticker-dot">📞</span> Direct WhatsApp Support: +91 92636 67669</div>
+    </div>
+  </div>
+
+  <!-- ===================================================
+       ANIMATED STATS COUNTER SECTION
+  =================================================== -->
+  <section class="stats-counter-section">
+    <div class="container">
+      <div class="stats-counter-grid">
+        <div class="stat-card reveal-on-scroll">
+          <div class="stat-icon-wrap pink">
+            <i class="fa-solid fa-cake-candles"></i>
+          </div>
+          <div class="stat-number-wrap">
+            <span class="stat-number" data-target="500">0</span><span class="stat-suffix">+</span>
+          </div>
+          <div class="stat-label">Happy Celebrations</div>
+          <div class="stat-sub">Delivered Across Patna</div>
+        </div>
+
+        <div class="stat-card reveal-on-scroll">
+          <div class="stat-icon-wrap orange">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <div class="stat-number-wrap">
+            <span class="stat-number" data-target="60">0</span><span class="stat-suffix">+</span>
+          </div>
+          <div class="stat-label">Unique Decor Themes</div>
+          <div class="stat-sub">Ring Arches, Canopies & More</div>
+        </div>
+
+        <div class="stat-card reveal-on-scroll">
+          <div class="stat-icon-wrap gold">
+            <i class="fa-solid fa-star"></i>
+          </div>
+          <div class="stat-number-wrap">
+            <span class="stat-number" data-target="4.9" data-decimals="1">0</span><span class="stat-suffix">★</span>
+          </div>
+          <div class="stat-label">Google Client Rating</div>
+          <div class="stat-sub">120+ Verified 5-Star Reviews</div>
+        </div>
+
+        <div class="stat-card reveal-on-scroll">
+          <div class="stat-icon-wrap green">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div class="stat-number-wrap">
+            <span class="stat-number" data-target="100">0</span><span class="stat-suffix">%</span>
+          </div>
+          <div class="stat-label">On-Time Guarantee</div>
+          <div class="stat-sub">Ready Before Guests Arrive</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================
+       SECTION 1: PREMIUM DECORATION CATEGORIES
+       Full-Bleed Photography-Based Luxury Cards
+  =================================================== -->
+  <section class="luxury-categories-section" id="decoration-categories">
+    <div class="container">
+      <div class="luxury-cat-header reveal-on-scroll">
+        <div class="luxury-cat-eyebrow-pill">
+          <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+          <span>EXPLORE BY OCCASION</span>
+        </div>
+        <h2 class="section-title-large">Premium <span class="text-pink">Decoration Categories</span></h2>
+        <p class="section-desc-sub" style="max-width: 680px; margin: 0 auto;">
+          Handcrafted balloon decoration setups for every milestone, celebration, and luxury event in Patna.
+        </p>
+      </div>
+
+      <div class="luxury-cat-grid">
+        <!-- 1. Birthday Decoration -->
+        <div class="luxury-cat-card reveal-on-scroll" onclick="showOccasionThemes('birthday')">
+          <img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1000&auto=format&fit=crop&q=85" alt="Luxury Birthday Balloon Decoration" class="luxury-cat-img" loading="lazy">
+          <div class="luxury-cat-gradient-overlay"></div>
+          <div class="luxury-cat-badge">
+            <i class="fa-solid fa-cake-candles"></i> 11 Themes
+          </div>
+          <div class="luxury-cat-content">
+            <span class="luxury-cat-tagline">Milestone & Celebration</span>
+            <h3 class="luxury-cat-title">Birthday Decoration</h3>
+            <p class="luxury-cat-desc">Pastel pink & gold balloon arches, marquee age numbers, balloon canopies & custom neon signage.</p>
+            <div class="luxury-cat-footer">
+              <a href="category.html?cat=birthday" class="luxury-cat-btn" onclick="event.stopPropagation()">
+                <span>Explore</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Anniversary Decoration -->
+        <div class="luxury-cat-card reveal-on-scroll" onclick="showOccasionThemes('anniversary')">
+          <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=1000&auto=format&fit=crop&q=85" alt="Romantic Anniversary Balloon Room Decoration" class="luxury-cat-img" loading="lazy">
+          <div class="luxury-cat-gradient-overlay"></div>
+          <div class="luxury-cat-badge">
+            <i class="fa-solid fa-heart"></i> 10 Themes
+          </div>
+          <div class="luxury-cat-content">
+            <span class="luxury-cat-tagline">Romance & Elegance</span>
+            <h3 class="luxury-cat-title">Anniversary Decoration</h3>
+            <p class="luxury-cat-desc">Romantic red, white & gold balloon room decor with heart-shaped balloons, rose petals & fairy lights.</p>
+            <div class="luxury-cat-footer">
+              <a href="category.html?cat=anniversary" class="luxury-cat-btn" onclick="event.stopPropagation()">
+                <span>Explore</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Baby Shower -->
+        <div class="luxury-cat-card reveal-on-scroll" onclick="showOccasionThemes('babyshower')">
+          <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85" alt="Baby Shower Balloon Arch Backdrop" class="luxury-cat-img" loading="lazy">
+          <div class="luxury-cat-gradient-overlay"></div>
+          <div class="luxury-cat-badge">
+            <i class="fa-solid fa-baby-carriage"></i> 10 Themes
+          </div>
+          <div class="luxury-cat-content">
+            <span class="luxury-cat-tagline">Mom-To-Be Special</span>
+            <h3 class="luxury-cat-title">Baby Shower</h3>
+            <p class="luxury-cat-desc">Pastel pink and blue balloon cloud arches, golden teddy backdrops & glowing Oh Baby neon signs.</p>
+            <div class="luxury-cat-footer">
+              <a href="category.html?cat=babyshower" class="luxury-cat-btn" onclick="event.stopPropagation()">
+                <span>Explore</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Welcome Baby -->
+        <div class="luxury-cat-card reveal-on-scroll" onclick="showOccasionThemes('babyshower')">
+          <img src="https://images.unsplash.com/photo-1513151233558-d860c5398176?w=1000&auto=format&fit=crop&q=85" alt="Welcome Baby Newborn Balloon Decoration" class="luxury-cat-img" loading="lazy">
+          <div class="luxury-cat-gradient-overlay"></div>
+          <div class="luxury-cat-badge">
+            <i class="fa-solid fa-baby"></i> Newborn Decor
+          </div>
+          <div class="luxury-cat-content">
+            <span class="luxury-cat-tagline">Precious Homecoming</span>
+            <h3 class="luxury-cat-title">Welcome Baby</h3>
+            <p class="luxury-cat-desc">Elegant newborn homecoming gates, cradle garland styling, satin ribbons & gentle pastel balloon arches.</p>
+            <div class="luxury-cat-footer">
+              <a href="category.html?cat=babyshower" class="luxury-cat-btn" onclick="event.stopPropagation()">
+                <span>Explore</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Romantic Room Decoration -->
+        <div class="luxury-cat-card reveal-on-scroll" onclick="showOccasionThemes('anniversary')">
+          <img src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=1000&auto=format&fit=crop&q=85" alt="Luxury Bedroom Red Heart Balloon Decor" class="luxury-cat-img" loading="lazy">
+          <div class="luxury-cat-gradient-overlay"></div>
+          <div class="luxury-cat-badge">
+            <i class="fa-solid fa-bed"></i> Romantic Setup
+          </div>
+          <div class="luxury-cat-content">
+            <span class="luxury-cat-tagline">Intimate Moments</span>
+            <h3 class="luxury-cat-title">Romantic Room Decoration</h3>
+            <p class="luxury-cat-desc">Luxury bedroom decorated with red heart balloons, floor rose petals, warm LED candles & ceiling canopies.</p>
+            <div class="luxury-cat-footer">
+              <a href="category.html?cat=anniversary" class="luxury-cat-btn" onclick="event.stopPropagation()">
+                <span>Explore</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Surprise Decoration -->
+        <div class="luxury-cat-card reveal-on-scroll" onclick="showOccasionThemes('birthday')">
+          <img src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=1000&auto=format&fit=crop&q=85" alt="Surprise Birthday Room Balloon Setup" class="luxury-cat-img" loading="lazy">
+          <div class="luxury-cat-gradient-overlay"></div>
+          <div class="luxury-cat-badge">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Midnight Special
+          </div>
+          <div class="luxury-cat-content">
+            <span class="luxury-cat-tagline">Secret Celebration</span>
+            <h3 class="luxury-cat-title">Surprise Decoration</h3>
+            <p class="luxury-cat-desc">Surprise birthday room setups, hanging photo ribbons, popping balloon boxes & glowing fairy-light canopies.</p>
+            <div class="luxury-cat-footer">
+              <a href="category.html?cat=birthday" class="luxury-cat-btn" onclick="event.stopPropagation()">
+                <span>Explore</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. Engagement Decoration -->
+        <div class="luxury-cat-card reveal-on-scroll" onclick="showOccasionThemes('wedding')">
+          <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=1000&auto=format&fit=crop&q=85" alt="Engagement Ceremony Floral and Balloon Stage" class="luxury-cat-img" loading="lazy">
+          <div class="luxury-cat-gradient-overlay"></div>
+          <div class="luxury-cat-badge">
+            <i class="fa-solid fa-gem"></i> Engagement
+          </div>
+          <div class="luxury-cat-content">
+            <span class="luxury-cat-tagline">Everlasting Love</span>
+            <h3 class="luxury-cat-title">Engagement Decoration</h3>
+            <p class="luxury-cat-desc">Premium floral and balloon engagement stages, organic arches, couple initials & warm ambient lighting.</p>
+            <div class="luxury-cat-footer">
+              <a href="category.html?cat=wedding" class="luxury-cat-btn" onclick="event.stopPropagation()">
+                <span>Explore</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. Ring Ceremony -->
+        <div class="luxury-cat-card reveal-on-scroll" onclick="showOccasionThemes('wedding')">
+          <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1000&auto=format&fit=crop&q=85" alt="Ring Ceremony Circular Arch Backdrop" class="luxury-cat-img" loading="lazy">
+          <div class="luxury-cat-gradient-overlay"></div>
+          <div class="luxury-cat-badge">
+            <i class="fa-solid fa-ring"></i> Ring Ceremony
+          </div>
+          <div class="luxury-cat-content">
+            <span class="luxury-cat-tagline">Signature Backdrop</span>
+            <h3 class="luxury-cat-title">Ring Ceremony</h3>
+            <p class="luxury-cat-desc">Elegant metallic ring ceremony backdrops with champagne gold chrome balloons, fresh florals & neon signage.</p>
+            <div class="luxury-cat-footer">
+              <a href="category.html?cat=wedding" class="luxury-cat-btn" onclick="event.stopPropagation()">
+                <span>Explore</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9. Kids Party Decoration -->
+        <div class="luxury-cat-card reveal-on-scroll" onclick="showOccasionThemes('other')">
+          <img src="https://images.unsplash.com/photo-1502635385003-ee1e6a1a742d?w=1000&auto=format&fit=crop&q=85" alt="Kids Birthday Party Balloon Setup" class="luxury-cat-img" loading="lazy">
+          <div class="luxury-cat-gradient-overlay"></div>
+          <div class="luxury-cat-badge">
+            <i class="fa-solid fa-masks-theater"></i> Kids Wonderland
+          </div>
+          <div class="luxury-cat-content">
+            <span class="luxury-cat-tagline">Fun & Magic</span>
+            <h3 class="luxury-cat-title">Kids Party Decoration</h3>
+            <p class="luxury-cat-desc">Colourful balloon wonderland with playful party themes: Jungle Safari, Superhero, Space & Cartoon character cutouts.</p>
+            <div class="luxury-cat-footer">
+              <a href="category.html?cat=other" class="luxury-cat-btn" onclick="event.stopPropagation()">
+                <span>Explore</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 10. Balloon Arch Decoration -->
+        <div class="luxury-cat-card reveal-on-scroll" onclick="showOccasionThemes('other')">
+          <img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=1000&auto=format&fit=crop&q=85" alt="Large Luxury Balloon Arch" class="luxury-cat-img" loading="lazy">
+          <div class="luxury-cat-gradient-overlay"></div>
+          <div class="luxury-cat-badge">
+            <i class="fa-solid fa-archway"></i> Signature Arches
+          </div>
+          <div class="luxury-cat-content">
+            <span class="luxury-cat-tagline">Architectural Balloon Art</span>
+            <h3 class="luxury-cat-title">Balloon Arch Decoration</h3>
+            <p class="luxury-cat-desc">Large luxury balloon arches with organic cascades, spiral entrances & custom color palettes for grand venues.</p>
+            <div class="luxury-cat-footer">
+              <a href="category.html?cat=other" class="luxury-cat-btn" onclick="event.stopPropagation()">
+                <span>Explore</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 11. Balloon Wall Decoration -->
+        <div class="luxury-cat-card reveal-on-scroll" onclick="showOccasionThemes('other')">
+          <img src="https://images.unsplash.com/photo-1578922746465-3a80a228f223?w=1000&auto=format&fit=crop&q=85" alt="Balloon Wall Photo Backdrop" class="luxury-cat-img" loading="lazy">
+          <div class="luxury-cat-gradient-overlay"></div>
+          <div class="luxury-cat-badge">
+            <i class="fa-solid fa-border-all"></i> Photo Backdrop
+          </div>
+          <div class="luxury-cat-content">
+            <span class="luxury-cat-tagline">Insta-Ready Wall</span>
+            <h3 class="luxury-cat-title">Balloon Wall Decoration</h3>
+            <p class="luxury-cat-desc">Dense, photo-ready shimmer sequin and multi-tone balloon walls creating a stunning celebrity backdrop.</p>
+            <div class="luxury-cat-footer">
+              <a href="category.html?cat=other" class="luxury-cat-btn" onclick="event.stopPropagation()">
+                <span>Explore</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 12. Corporate Event Decoration -->
+        <div class="luxury-cat-card reveal-on-scroll" onclick="showOccasionThemes('corporate')">
+          <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1000&auto=format&fit=crop&q=85" alt="Professional Corporate Event Balloon Decor" class="luxury-cat-img" loading="lazy">
+          <div class="luxury-cat-gradient-overlay"></div>
+          <div class="luxury-cat-badge">
+            <i class="fa-solid fa-briefcase"></i> 10 Themes
+          </div>
+          <div class="luxury-cat-content">
+            <span class="luxury-cat-tagline">Brand & Conference</span>
+            <h3 class="luxury-cat-title">Corporate Event Decoration</h3>
+            <p class="luxury-cat-desc">Professional branded balloon columns, annual day stage backdrops, office inaugurations & milestone celebration arches.</p>
+            <div class="luxury-cat-footer">
+              <a href="category.html?cat=corporate" class="luxury-cat-btn" onclick="event.stopPropagation()">
+                <span>Explore</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================
+       SECTION 2: LUXURY HERO BANNER
+       Cinematic Full-Width Luxury Event Decoration Showcase
+  =================================================== -->
+  <section class="luxury-hero-banner" id="featured-hero">
+    <div class="luxury-hero-scrim"></div>
+    <div class="luxury-hero-glow-blob-1" aria-hidden="true"></div>
+    <div class="luxury-hero-glow-blob-2" aria-hidden="true"></div>
+    <div class="luxury-hero-content reveal-on-scroll">
+      <div class="luxury-hero-eyebrow">
+        <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+        <span>Making Every Celebration Special</span>
+      </div>
+      <h2 class="luxury-hero-headline">
+        CELEBRATE LIFE'S<br>
+        <span class="luxury-gold-shimmer">BEAUTIFUL MOMENTS</span>
+      </h2>
+      <p class="luxury-hero-subtitle">
+        From dreamy birthdays to unforgettable celebrations, we create beautiful decoration experiences made just for you.
+      </p>
+      <div class="luxury-hero-actions">
+        <a href="#packages" class="luxury-hero-btn-primary">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> EXPLORE COLLECTION
+        </a>
+        <a href="#book" class="luxury-hero-btn-secondary" onclick="openBookingModalForPackage('')">
+          <i class="fa-regular fa-calendar-check"></i> BOOK YOUR DECORATION
+        </a>
+      </div>
+      <div class="luxury-hero-trust-bar">
+        <div class="luxury-hero-trust-item">
+          <i class="fa-solid fa-star"></i>
+          <span>4.9★ Rated Luxury Event Stylists</span>
+        </div>
+        <div class="luxury-hero-trust-item">
+          <i class="fa-solid fa-clock"></i>
+          <span>Guaranteed On-Time Setup</span>
+        </div>
+        <div class="luxury-hero-trust-item">
+          <i class="fa-solid fa-gem"></i>
+          <span>100% Premium Biodegradable Latex</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================
+       POPULAR CATEGORIES SECTION (Exact Match)
+  =================================================== -->
+  <section class="section-wrapper" id="services" style="padding-top: 2rem;">
+    <div class="container">
+      <div class="section-head-row">
+        <div>
+          <div class="eyebrow-tag">OUR SERVICES</div>
+          <h2 class="section-title-large">Popular <span class="text-pink">Categories</span></h2>
+          <p class="section-desc-sub">Choose from a wide range of balloon decoration services for every occasion.</p>
+        </div>
+        <div>
+          <a href="#packages" class="view-all-link">View All Services <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <!-- 6 Category Cards Grid -->
+      <div class="categories-grid">
+        <!-- 1. Birthday Parties -->
+        <div class="category-card reveal-on-scroll" onclick="showOccasionThemes('birthday')">
+          <span class="cat-badge-float">11 Themes</span>
+          <div class="category-img-box">
+            <img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&auto=format&fit=crop&q=80" alt="Birthday Parties">
+          </div>
+          <div class="category-footer-bar">
+            <div class="cat-label-wrap">
+              <div class="cat-icon-mini pink"><i class="fa-solid fa-cake-candles"></i></div>
+              <span class="cat-title-text">Birthday Parties</span>
+            </div>
+            <a href="category.html?cat=birthday" class="cat-arrow-circle" title="View Birthday Themes" onclick="event.stopPropagation()"><i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- 2. Weddings -->
+        <div class="category-card reveal-on-scroll" onclick="showOccasionThemes('wedding')">
+          <span class="cat-badge-float">10 Themes</span>
+          <div class="category-img-box">
+            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=600&auto=format&fit=crop&q=80" alt="Weddings">
+          </div>
+          <div class="category-footer-bar">
+            <div class="cat-label-wrap">
+              <div class="cat-icon-mini purple"><i class="fa-solid fa-ring"></i></div>
+              <span class="cat-title-text">Weddings</span>
+            </div>
+            <a href="category.html?cat=wedding" class="cat-arrow-circle" title="View Wedding Themes" onclick="event.stopPropagation()"><i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- 3. Baby Shower -->
+        <div class="category-card reveal-on-scroll" onclick="showOccasionThemes('babyshower')">
+          <span class="cat-badge-float">10 Themes</span>
+          <div class="category-img-box">
+            <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&auto=format&fit=crop&q=80" alt="Baby Shower">
+          </div>
+          <div class="category-footer-bar">
+            <div class="cat-label-wrap">
+              <div class="cat-icon-mini cyan"><i class="fa-solid fa-baby-carriage"></i></div>
+              <span class="cat-title-text">Baby Shower</span>
+            </div>
+            <a href="category.html?cat=babyshower" class="cat-arrow-circle" title="View Baby Shower Themes" onclick="event.stopPropagation()"><i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- 4. Corporate Events -->
+        <div class="category-card reveal-on-scroll" onclick="showOccasionThemes('corporate')">
+          <span class="cat-badge-float">10 Themes</span>
+          <div class="category-img-box">
+            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&auto=format&fit=crop&q=80" alt="Corporate Events">
+          </div>
+          <div class="category-footer-bar">
+            <div class="cat-label-wrap">
+              <div class="cat-icon-mini orange"><i class="fa-solid fa-briefcase"></i></div>
+              <span class="cat-title-text">Corporate Events</span>
+            </div>
+            <a href="category.html?cat=corporate" class="cat-arrow-circle" title="View Corporate Themes" onclick="event.stopPropagation()"><i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- 5. Anniversaries -->
+        <div class="category-card reveal-on-scroll" onclick="showOccasionThemes('anniversary')">
+          <span class="cat-badge-float">10 Themes</span>
+          <div class="category-img-box">
+            <img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&auto=format&fit=crop&q=80" alt="Anniversaries">
+          </div>
+          <div class="category-footer-bar">
+            <div class="cat-label-wrap">
+              <div class="cat-icon-mini rose"><i class="fa-solid fa-heart"></i></div>
+              <span class="cat-title-text">Anniversaries</span>
+            </div>
+            <a href="category.html?cat=anniversary" class="cat-arrow-circle" title="View Anniversary Themes" onclick="event.stopPropagation()"><i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- 6. Other Occasions -->
+        <div class="category-card reveal-on-scroll" onclick="showOccasionThemes('other')">
+          <span class="cat-badge-float">10 Themes</span>
+          <div class="category-img-box">
+            <img src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=600&auto=format&fit=crop&q=80" alt="Other Occasions">
+          </div>
+          <div class="category-footer-bar">
+            <div class="cat-label-wrap">
+              <div class="cat-icon-mini yellow"><i class="fa-solid fa-star"></i></div>
+              <span class="cat-title-text">Other Occasions</span>
+            </div>
+            <a href="category.html?cat=other" class="cat-arrow-circle" title="View Special Themes" onclick="event.stopPropagation()"><i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================
+       WHY CHOOSE THE PARTY HARD? (Exact Match)
+  =================================================== -->
+  <section class="why-choose-section">
+    <div class="container">
+      <div class="section-head-row" style="margin-bottom: 1.5rem;">
+        <div>
+          <h2 class="section-title-large">Why Choose <span class="text-pink">The Party Hard?</span></h2>
+          <p class="section-desc-sub">We make your special moments unforgettable with creativity, quality and trust.</p>
+        </div>
+        <div>
+          <a href="#packages" class="btn btn-pink" style="padding: 0.65rem 1.4rem; font-size: 0.88rem;">
+            Our Packages <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- 4 Features Grid -->
+      <div class="why-features-grid">
+        <!-- 1. Creative Designs -->
+        <div class="why-card reveal-on-scroll">
+          <div class="why-icon-box pink">
+            <i class="fa-solid fa-palette"></i>
+          </div>
+          <div class="why-content">
+            <h4>Creative Designs</h4>
+            <p>Unique and customized decorations for every occasion.</p>
+          </div>
+        </div>
+
+        <!-- 2. Premium Balloons -->
+        <div class="why-card reveal-on-scroll">
+          <div class="why-icon-box purple">
+            <i class="fa-solid fa-gem"></i>
+          </div>
+          <div class="why-content">
+            <h4>Premium Balloons</h4>
+            <p>High-quality, long-lasting and eco-friendly balloons.</p>
+          </div>
+        </div>
+
+        <!-- 3. Experienced Team -->
+        <div class="why-card reveal-on-scroll">
+          <div class="why-icon-box cyan">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <div class="why-content">
+            <h4>Experienced Team</h4>
+            <p>Skilled professionals with years of experience.</p>
+          </div>
+        </div>
+
+        <!-- 4. Affordable Pricing -->
+        <div class="why-card reveal-on-scroll">
+          <div class="why-icon-box orange">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div class="why-content">
+            <h4>Affordable Pricing</h4>
+            <p>Best decorations at competitive rates.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================
+       RECENT DECORATIONS (GALLERY) (Exact Match)
+  =================================================== -->
+  <section class="section-wrapper" id="gallery">
+    <div class="container">
+      <div class="section-head-row">
+        <div>
+          <div class="eyebrow-tag">OUR WORKS</div>
+          <h2 class="section-title-large">Recent <span class="text-pink">Decorations</span></h2>
+          <p class="section-desc-sub">Take a look at some of our latest balloon decoration setups.</p>
+        </div>
+        <div>
+          <a href="#packages" class="view-all-link">View All Gallery <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <!-- Gallery Grid of 6 Photos -->
+      <div class="recent-gallery-grid">
+        <div class="recent-gallery-item reveal-on-scroll" onclick="openServiceDetailModal('srv-bday-1')">
+          <img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&auto=format&fit=crop&q=80" alt="Pastel Birthday Setup">
+        </div>
+        <div class="recent-gallery-item reveal-on-scroll" onclick="openServiceDetailModal('srv-baby-1')">
+          <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&auto=format&fit=crop&q=80" alt="Pastel Baby Shower Setup">
+        </div>
+        <div class="recent-gallery-item reveal-on-scroll" onclick="openServiceDetailModal('srv-anniv-1')">
+          <img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&auto=format&fit=crop&q=80" alt="Romantic Anniversary Arch">
+        </div>
+        <div class="recent-gallery-item reveal-on-scroll" onclick="openServiceDetailModal('srv-wed-1')">
+          <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=600&auto=format&fit=crop&q=80" alt="Floral Wedding Arch">
+        </div>
+        <div class="recent-gallery-item reveal-on-scroll" onclick="openServiceDetailModal('srv-corp-1')">
+          <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&auto=format&fit=crop&q=80" alt="Corporate Welcome Backdrop">
+        </div>
+        <div class="recent-gallery-item reveal-on-scroll" onclick="openServiceDetailModal('srv-other-1')">
+          <img src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=600&auto=format&fit=crop&q=80" alt="Celebration Arch">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================
+       PACKAGES & PRICING SECTION (Phase 2 Full Details)
+  =================================================== -->
+  <section class="section-wrapper" id="packages" style="background: #ffffff; border-top: 1px solid var(--border-light);">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 2.2rem;">
+        <div class="eyebrow-tag" style="justify-content: center;">TRANSPARENT PRICING</div>
+        <h2 class="section-title-large">Decoration <span class="text-pink">Themes by Occasion</span></h2>
+        <p class="section-desc-sub" style="max-width: 620px; margin: 0 auto;">
+          Choose your celebration category below to view specialized themes without clutter. Transparent pricing with free on-site setup in Patna.
+        </p>
+      </div>
+
+      <!-- Filter Tabs by Occasion -->
+      <div class="filter-tabs-row">
+        <button class="filter-tab-pill active" data-filter="birthday">🎂 Birthday Parties (11)</button>
+        <button class="filter-tab-pill" data-filter="anniversary">💍 Anniversary (10)</button>
+        <button class="filter-tab-pill" data-filter="babyshower">👶 Baby Shower (10)</button>
+        <button class="filter-tab-pill" data-filter="wedding">💐 Weddings (10)</button>
+        <button class="filter-tab-pill" data-filter="corporate">🏢 Corporate (10)</button>
+        <button class="filter-tab-pill" data-filter="other">✨ Special Occasions (10)</button>
+      </div>
+
+      <!-- Active Occasion Information Banner -->
+      <div class="active-occasion-banner" id="active-occasion-banner">
+        <div class="occasion-banner-left">
+          <span style="font-size: 2rem;" id="occasion-banner-icon">🎂</span>
+          <div>
+            <h3 id="occasion-banner-title" style="margin: 0; font-size: 1.2rem; color: var(--text-dark);">Showing 11 Birthday Decoration Themes</h3>
+            <p id="occasion-banner-sub" style="margin: 0.15rem 0 0; font-size: 0.85rem; color: var(--text-muted);">From 1st Birthday to Milestone setups • Handcrafted in Patna</p>
+          </div>
+        </div>
+        <div class="occasion-banner-right">
+          <a id="occasion-dedicated-link" href="category.html?cat=birthday" class="btn btn-white-pill" style="font-size: 0.84rem; padding: 0.45rem 1rem; text-decoration: none; border-color: var(--primary-pink); color: var(--primary-pink);">
+            Open Dedicated Birthday Page <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem; margin-left: 4px;"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Detailed Services Grid -->
+      <div class="services-detailed-grid" id="services-grid">
+        <!-- Rendered dynamically via app.js -->
+      </div>
+
+      <!-- Dedicated Category Quick Links Hub -->
+      <div style="text-align: center; margin-top: 2.8rem; padding: 1.6rem; background: #fdf2f8; border-radius: 16px; border: 1px solid #fce7f3;">
+        <h4 style="margin: 0 0 0.35rem; color: var(--text-dark); font-size: 1.15rem;">Explore Full Dedicated Occasion Pages</h4>
+        <p style="margin: 0 0 1.1rem; font-size: 0.88rem; color: var(--text-muted);">Each page features complete themes, transparent inclusions, custom color styling, and instant booking.</p>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem;">
+          <a href="category.html?cat=birthday" class="btn btn-white-pill" style="font-size: 0.82rem; padding: 0.45rem 0.95rem; text-decoration: none;">🎂 Birthday (11 Themes)</a>
+          <a href="category.html?cat=anniversary" class="btn btn-white-pill" style="font-size: 0.82rem; padding: 0.45rem 0.95rem; text-decoration: none;">💍 Anniversary (10 Themes)</a>
+          <a href="category.html?cat=babyshower" class="btn btn-white-pill" style="font-size: 0.82rem; padding: 0.45rem 0.95rem; text-decoration: none;">👶 Baby Shower (10 Themes)</a>
+          <a href="category.html?cat=wedding" class="btn btn-white-pill" style="font-size: 0.82rem; padding: 0.45rem 0.95rem; text-decoration: none;">💐 Wedding (10 Themes)</a>
+          <a href="category.html?cat=corporate" class="btn btn-white-pill" style="font-size: 0.82rem; padding: 0.45rem 0.95rem; text-decoration: none;">🏢 Corporate (10 Themes)</a>
+          <a href="category.html?cat=other" class="btn btn-white-pill" style="font-size: 0.82rem; padding: 0.45rem 0.95rem; text-decoration: none;">✨ Special (10 Themes)</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================
+       ONLINE BOOKING SECTION (Phase 4)
+  =================================================== -->
+  <section class="section-wrapper" id="book">
+    <div class="container">
+      <div class="booking-container-card">
+        <div style="text-align: center; margin-bottom: 2.5rem;">
+          <div class="eyebrow-tag" style="justify-content: center;">INSTANT RESERVATION</div>
+          <h2 class="section-title-large">Book Your <span class="text-pink">Celebration</span></h2>
+          <p class="section-desc-sub">
+            Fill in the details below to lock your date. You will get an immediate Booking ID and direct WhatsApp confirmation.
+          </p>
+        </div>
+
+        <form id="main-booking-form">
+          <div class="form-grid-2col">
+            <div class="form-group">
+              <label class="form-label" for="booking-name"><i class="fa-regular fa-user" style="color: var(--primary-pink);"></i> Full Name *</label>
+              <input type="text" id="booking-name" class="form-control" placeholder="e.g. Rahul Sharma" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="booking-phone"><i class="fa-brands fa-whatsapp" style="color: #25D366;"></i> WhatsApp Mobile Number *</label>
+              <input type="tel" id="booking-phone" class="form-control" placeholder="e.g. 9876543210" pattern="[0-9]{10}" title="Enter a 10-digit mobile number" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="booking-event-type"><i class="fa-regular fa-calendar-star" style="color: var(--primary-pink);"></i> Occasion *</label>
+              <select id="booking-event-type" class="form-control" required>
+                <option value="">-- Select Occasion --</option>
+                <option value="Birthday Party">Birthday Party 🎂</option>
+                <option value="Weddings">Weddings & Engagements 💍</option>
+                <option value="Baby Shower">Baby Shower & Naming 🍼</option>
+                <option value="Anniversary">Anniversary & Welcome Baby 💖</option>
+                <option value="Corporate Events">Corporate Events & Opening 🏢</option>
+                <option value="Other Occasion">Other Custom Occasion ✨</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="booking-package"><i class="fa-solid fa-box-open" style="color: var(--primary-pink);"></i> Selected Package</label>
+              <select id="booking-package" class="form-control">
+                <option value="custom">✨ Custom Bespoke Theme (Tailored to your needs)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="booking-date"><i class="fa-regular fa-calendar-days" style="color: var(--primary-pink);"></i> Event Date *</label>
+              <input type="date" id="booking-date" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="booking-time"><i class="fa-regular fa-clock" style="color: var(--primary-pink);"></i> Setup Timing</label>
+              <select id="booking-time" class="form-control">
+                <option value="Morning (9:00 AM - 12:00 PM)">Morning (9:00 AM - 12:00 PM)</option>
+                <option value="Afternoon (1:00 PM - 4:00 PM)" selected>Afternoon (1:00 PM - 4:00 PM)</option>
+                <option value="Evening (5:00 PM - 8:00 PM)">Evening (5:00 PM - 8:00 PM)</option>
+                <option value="Night Surprise (9:30 PM - 11:30 PM)">Night Surprise (9:30 PM - 11:30 PM)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="booking-budget"><i class="fa-solid fa-wallet" style="color: var(--primary-pink);"></i> Budget Range</label>
+              <select id="booking-budget" class="form-control">
+                <option value="₹1,500 - ₹3,000">₹1,500 - ₹3,000 (Room & Simple Arch)</option>
+                <option value="₹3,000 - ₹6,000" selected>₹3,000 - ₹6,000 (Ring Arch & Neon Sign)</option>
+                <option value="₹6,000 - ₹12,000">₹6,000 - ₹12,000 (Grand Milestone & Stage)</option>
+                <option value="₹15,000+ Luxury">₹15,000+ (Grand Luxury Setup)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="booking-theme"><i class="fa-solid fa-palette" style="color: var(--primary-pink);"></i> Color Theme</label>
+              <input type="text" id="booking-theme" class="form-control" placeholder="e.g. Pastel Pink & Mint, Rose Gold, Chrome Black">
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for="booking-venue"><i class="fa-solid fa-location-dot" style="color: var(--primary-pink);"></i> Venue / Delivery Address *</label>
+              <input type="text" id="booking-venue" class="form-control" placeholder="e.g. Flat 402, Sunshine Apts, MG Road" required>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for="booking-notes"><i class="fa-regular fa-comment-dots" style="color: var(--primary-pink);"></i> Special Instructions / Age / Name on Neon Sign</label>
+              <textarea id="booking-notes" class="form-control" rows="3" placeholder="Tell us if you want a specific age number balloon, custom name on sign, etc."></textarea>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for="booking-coupon"><i class="fa-solid fa-tag" style="color: var(--primary-pink);"></i> Have a Discount Coupon Code?</label>
+              <input type="text" id="booking-coupon" class="form-control" placeholder="e.g. WELCOME10, FESTIVE15, LUXURY500" style="text-transform: uppercase;">
+            </div>
+
+            <div class="form-group full-width" style="text-align: center; margin-top: 1rem;">
+              <button type="submit" class="btn btn-pink" style="width: 100%; padding: 1rem; font-size: 1.05rem;">
+                <i class="fa-regular fa-circle-check"></i> Submit Booking & Generate ID
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================
+       TRACK BOOKING SECTION (Phase 5)
+  =================================================== -->
+  <section class="section-wrapper" id="track" style="background: #ffffff; border-top: 1px solid var(--border-light);">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 2.5rem;">
+        <div class="eyebrow-tag" style="justify-content: center;">LIVE ORDER TRACKING</div>
+        <h2 class="section-title-large">Track Your <span class="text-pink">Booking</span></h2>
+        <p class="section-desc-sub">
+          Enter your Booking ID (e.g. TPH-2026-8941) or registered mobile number to check real-time decorator status.
+        </p>
+      </div>
+
+      <div class="track-search-box">
+        <div class="track-input-row">
+          <input type="text" id="track-input" class="form-control" placeholder="Enter Booking ID (e.g. TPH-2026-8941) or Mobile Number">
+          <button id="track-search-btn" class="btn btn-pink">
+            <i class="fa-solid fa-magnifying-glass"></i> Track Live Status
+          </button>
+        </div>
+      </div>
+
+      <!-- Tracking Results Card -->
+      <div id="track-result-card" class="track-result-wrap">
+        <!-- Rendered dynamically via app.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================
+       ABOUT & CONTACT SECTION
+  =================================================== -->
+  <section class="section-wrapper" id="contact">
+    <div class="container">
+      <div class="contact-grid-wrapper">
+        <div>
+          <div class="eyebrow-tag">CONNECT WITH US</div>
+          <h2 class="section-title-large" style="margin-bottom: 1rem;">Let’s Plan Your <br><span class="text-pink">Dream Celebration</span></h2>
+          <p style="color: var(--text-body); font-size: 1.02rem; margin-bottom: 2rem; line-height: 1.6;">
+            Have a question, need customized pricing, or want our head stylist to visit your venue? We are available 7 days a week to make your celebration unforgettable.
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div style="width: 44px; height: 44px; border-radius: 50%; background: #fde8ee; color: var(--primary-pink); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                <i class="fa-solid fa-phone"></i>
+              </div>
+              <div>
+                <strong style="color: var(--text-dark); display: block;">Call Us Directly</strong>
+                <a href="tel:+919263667669" style="color: var(--text-muted); text-decoration: none;">+91 92636 67669</a>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div style="width: 44px; height: 44px; border-radius: 50%; background: #e6fffa; color: #25D366; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                <i class="fa-brands fa-whatsapp"></i>
+              </div>
+              <div>
+                <strong style="color: var(--text-dark); display: block;">Instant WhatsApp Chat</strong>
+                <a href="https://wa.me/919263667669?text=Hello%20The%20Party%20Hard" target="_blank" style="color: #25D366; text-decoration: none;">+91 92636 67669 (Fastest Reply)</a>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div style="width: 44px; height: 44px; border-radius: 50%; background: #f3e8ff; color: #9333ea; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                <i class="fa-solid fa-envelope"></i>
+              </div>
+              <div>
+                <strong style="color: var(--text-dark); display: block;">Email Us</strong>
+                <a href="mailto:partyhard2707@gmail.com" style="color: var(--text-muted); text-decoration: none;">partyhard2707@gmail.com</a>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div style="width: 44px; height: 44px; border-radius: 50%; background: #fffaf0; color: #dd6b20; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                <i class="fa-regular fa-clock"></i>
+              </div>
+              <div>
+                <strong style="color: var(--text-dark); display: block;">Working Hours</strong>
+                <span style="color: var(--text-muted);">Monday – Sunday: 8:00 AM – 10:00 PM</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Enquiry Form -->
+        <div class="contact-form-card">
+          <h3 style="font-size: 1.4rem; color: var(--text-dark); margin-bottom: 1.25rem;">Send a Quick Enquiry</h3>
+          <form id="contact-form">
+            <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+              <div class="form-group">
+                <label class="form-label" for="contact-name">Your Name *</label>
+                <input type="text" id="contact-name" class="form-control" placeholder="Your Name" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="contact-phone">WhatsApp Number *</label>
+                <input type="tel" id="contact-phone" class="form-control" placeholder="10-digit Mobile" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="contact-msg">Message / Theme Requirements *</label>
+                <textarea id="contact-msg" class="form-control" rows="3" placeholder="Tell us about the occasion, venue or styling you have in mind..." required></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-pink" style="width: 100%;">
+                <i class="fa-regular fa-paper-plane"></i> Send Enquiry
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================
+       FOOTER
+  =================================================== -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <a href="#home" class="brand-logo" style="margin-bottom: 1rem;">
+          <div class="logo-text-col">
+            <div class="logo-brand-name">THE PARTY<span> HARD</span></div>
+            <div class="logo-tagline">Decorate Your Happiness</div>
+          </div>
+        </a>
+        <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 320px; line-height: 1.6;">
+          Turning your celebrations into breathtaking memories with premium pastel balloon styling, neon signboards, and personalized themes.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Occasions</h4>
+        <ul class="footer-links">
+          <li><a href="category.html?cat=birthday">Birthday Parties (11 Themes)</a></li>
+          <li><a href="category.html?cat=anniversary">Anniversary & Romance (10 Themes)</a></li>
+          <li><a href="category.html?cat=babyshower">Baby Shower (10 Themes)</a></li>
+          <li><a href="category.html?cat=wedding">Weddings & Haldi (10 Themes)</a></li>
+          <li><a href="category.html?cat=corporate">Corporate Events (10 Themes)</a></li>
+          <li><a href="category.html?cat=other">Kids & Special Themes (10 Themes)</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#packages">Pricing & Packages</a></li>
+          <li><a href="#track">Track Booking</a></li>
+          <li><a href="#contact">Contact Support</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Direct Connect</h4>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+          Chat directly with our head decorator on WhatsApp for instant confirmation:
+        </p>
+        <a href="https://wa.me/919263667669?text=Hello%20The%20Party%20Hard" target="_blank" class="btn btn-whatsapp" style="width: 100%; margin-bottom: 0.8rem;">
+          <i class="fa-brands fa-whatsapp"></i> Chat on WhatsApp
+        </a>
+        <button class="btn btn-pink" style="width: 100%;" onclick="openBookingModalForPackage('')">
+          Book an Event Now
+        </button>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <div>
+        © 2026 <strong>The Party Hard</strong>. All rights reserved. Decorate Your Happiness.
+      </div>
+      <div>
+        Premium Celebrations • Beautiful Memories
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================================================
+       PERSISTENT BOTTOM-RIGHT FLOATING AI CONCIERGE LAUNCHER
+  =================================================== -->
+  <div class="ai-chat-launcher" id="ai-chat-launcher" title="Chat with Party Hard AI">
+    <div class="ai-pulse-ring"></div>
+    <div class="ai-pulse-ring delay"></div>
+    <i class="fa-solid fa-robot" style="font-size: 1.6rem; color: #ffffff;"></i>
+    <span class="ai-online-badge" title="Online 24/7"></span>
+  </div>
+
+  <div class="chat-bubble-tooltip" id="ai-welcome-bubble" onclick="openAiChat()">
+    <button class="tooltip-close" onclick="event.stopPropagation(); closeAiTooltip();" title="Dismiss">&times;</button>
+    <div class="tooltip-badge">
+      <span class="wave-hand">👋</span> <strong>Namaste!</strong>
+    </div>
+    <div class="tooltip-body">
+      Welcome to <strong>The Party Hard</strong>! Decoration ideas ya prices chahiye? Mujhse puchiye!
+    </div>
+    <div class="tooltip-cta">
+      <span>Chat with Party Hard AI</span> <i class="fa-solid fa-arrow-right"></i>
+    </div>
+  </div>
+
+  <!-- Expandable Floating Chat Box -->
+  <div class="ai-chat-box" id="ai-chat-box">
+    <div class="chat-header">
+      <div class="chat-header-user">
+        <div class="chat-avatar">
+          <i class="fa-solid fa-robot" style="color: #3b82f6;"></i>
+        </div>
+        <div class="chat-title-info">
+          <h4>Party Hard AI Assistant 🎈</h4>
+          <span class="chat-status"><span class="status-dot"></span> Online • Hindi / Hinglish / Eng</span>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.6rem;">
+        <button id="ai-chat-clear" title="Restart / Clear chat" style="background: none; border: none; color: var(--text-muted); font-size: 0.85rem; cursor: pointer;"><i class="fa-solid fa-rotate-right"></i></button>
+        <button class="chat-close-btn" id="ai-chat-close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+
+    <!-- Quick Chips for Prompts -->
+    <div class="chat-quick-chips">
+      <button class="chat-chip" data-query="Show me birthday decoration ideas">🎂 Birthday Ideas</button>
+      <button class="chat-chip" data-query="Mera budget ₹3,000 hai">💰 Budget ₹3,000</button>
+      <button class="chat-chip" data-query="Book a decoration for wedding">💍 Wedding Booking</button>
+      <button class="chat-chip" data-query="Baby shower decoration dikhao">🍼 Baby Shower</button>
+      <button class="chat-chip" data-query="Meri booking ka status batao">🔎 Track Booking</button>
+      <button class="chat-chip" data-query="Talk to a human">📞 Talk to Human</button>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="chat-messages" id="ai-chat-messages">
+      <div class="chat-msg bot">
+        Hi! I'm <strong>Party Hard AI</strong> 👋<br><br>
+        Welcome to <strong>The Party Hard</strong>! How can I help you today? Aap mujhse decoration ideas, packages, pricing, budget recommendations ya booking status ke bare mein pooch sakte hain!
+      </div>
+    </div>
+
+    <!-- Input Form -->
+    <form class="chat-input-bar" id="ai-chat-form">
+      <input type="text" id="ai-chat-input" class="chat-input" placeholder="Type your message..." autocomplete="off">
+      <button type="submit" class="chat-send-btn" title="Send message">
+        <i class="fa-solid fa-paper-plane"></i>
+      </button>
+    </form>
+  </div>
+
+  <!-- ===================================================
+       MODAL 0: INSTANT BOOKING MODAL (No Page Scroll!)
+  =================================================== -->
+  <div class="modal-overlay" id="booking-modal">
+    <div class="modal-card booking-modal-card">
+      <div class="modal-header">
+        <div>
+          <div class="modal-eyebrow"><i class="fa-solid fa-crown" style="color: #f59e0b;"></i> INSTANT RESERVATION</div>
+          <h3 id="booking-modal-title" style="margin: 0; font-size: 1.3rem; color: var(--text-dark);">Book Your Celebration 🎈</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('booking-modal')" title="Close Form"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body" style="padding: 1.35rem 1.6rem;">
+        <!-- Live Selected Package Banner -->
+        <div class="modal-pkg-banner" id="modal-pkg-preview">
+          <img id="modal-preview-img" src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800" alt="Selected Setup">
+          <div class="modal-pkg-info">
+            <span class="modal-pkg-tag" id="modal-preview-cat">Birthday Special</span>
+            <h4 id="modal-preview-title">Pastel Dream Birthday Ring Arch</h4>
+            <div class="modal-pkg-price" id="modal-preview-price">Starting ₹2,499 • Free On-Site Setup</div>
+          </div>
+        </div>
+
+        <form id="modal-booking-form">
+          <div class="form-grid-2col">
+            <div class="form-group">
+              <label class="form-label" for="modal-booking-name"><i class="fa-regular fa-user" style="color: var(--primary-pink);"></i> Full Name *</label>
+              <input type="text" id="modal-booking-name" class="form-control" placeholder="e.g. Rahul Sharma" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="modal-booking-phone"><i class="fa-brands fa-whatsapp" style="color: #25D366;"></i> WhatsApp Number *</label>
+              <input type="tel" id="modal-booking-phone" class="form-control" placeholder="e.g. 9876543210" pattern="[0-9]{10}" title="Enter 10-digit mobile number" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="modal-booking-event-type"><i class="fa-regular fa-calendar-star" style="color: var(--primary-pink);"></i> Occasion *</label>
+              <select id="modal-booking-event-type" class="form-control" required>
+                <option value="">-- Select Occasion --</option>
+                <option value="Birthday Party" selected>Birthday Party 🎂</option>
+                <option value="Weddings">Weddings & Engagements 💍</option>
+                <option value="Baby Shower">Baby Shower & Naming 🍼</option>
+                <option value="Anniversary">Anniversary & Romance 💖</option>
+                <option value="Corporate Events">Corporate Events & Opening 🏢</option>
+                <option value="Other Occasion">Other Custom Occasion ✨</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="modal-booking-package"><i class="fa-solid fa-box-open" style="color: var(--primary-pink);"></i> Choose / Change Setup</label>
+              <select id="modal-booking-package" class="form-control">
+                <option value="custom">✨ Custom Bespoke Theme</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="modal-booking-date"><i class="fa-regular fa-calendar-days" style="color: var(--primary-pink);"></i> Event Date *</label>
+              <input type="date" id="modal-booking-date" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="modal-booking-time"><i class="fa-regular fa-clock" style="color: var(--primary-pink);"></i> Setup Timing</label>
+              <select id="modal-booking-time" class="form-control">
+                <option value="Morning (9:00 AM - 12:00 PM)">Morning (9:00 AM - 12:00 PM)</option>
+                <option value="Afternoon (1:00 PM - 4:00 PM)" selected>Afternoon (1:00 PM - 4:00 PM)</option>
+                <option value="Evening (5:00 PM - 8:00 PM)">Evening (5:00 PM - 8:00 PM)</option>
+                <option value="Night Surprise (9:30 PM - 11:30 PM)">Night Surprise (9:30 PM - 11:30 PM)</option>
+              </select>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for="modal-booking-venue"><i class="fa-solid fa-location-dot" style="color: var(--primary-pink);"></i> Delivery Address in Patna *</label>
+              <input type="text" id="modal-booking-venue" class="form-control" placeholder="e.g. Flat 302, Royal Enclave, Boring Road, Patna" required>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for="modal-booking-notes"><i class="fa-regular fa-comment-dots" style="color: var(--primary-pink);"></i> Special Requests / Neon Sign Name / Age</label>
+              <input type="text" id="modal-booking-notes" class="form-control" placeholder="e.g. Neon text 'Happy Birthday Aarav', pastel blue theme">
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for="modal-booking-coupon"><i class="fa-solid fa-tag" style="color: var(--primary-pink);"></i> Discount Coupon Code (Optional)</label>
+              <input type="text" id="modal-booking-coupon" class="form-control" placeholder="e.g. WELCOME10, FESTIVE15, PARTY200" style="text-transform: uppercase;">
+            </div>
+          </div>
+
+          <!-- Trust Badges Row -->
+          <div class="modal-trust-row">
+            <span><i class="fa-solid fa-shield-halved" style="color: #10b981;"></i> Zero Advance Needed</span>
+            <span><i class="fa-solid fa-bolt" style="color: #f59e0b;"></i> 2-Hour Express Setup</span>
+            <span><i class="fa-brands fa-whatsapp" style="color: #25D366;"></i> Instant WhatsApp Confirm</span>
+          </div>
+
+          <!-- Buttons -->
+          <div style="display: flex; gap: 0.85rem; margin-top: 1.25rem;">
+            <button type="submit" class="btn btn-pink" style="flex: 1; padding: 0.85rem; font-size: 1rem;" id="modal-submit-btn">
+              <i class="fa-regular fa-calendar-check"></i> Confirm Booking Now
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================
+       MODAL 1: BOOKING CONFIRMATION MODAL
+  =================================================== -->
+  <div class="modal-overlay" id="confirmation-modal">
+    <div class="modal-card" style="max-width: 520px;">
+      <div class="modal-body">
+        <div class="confirmation-box">
+          <div class="confirmation-icon">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <h2 style="font-size: 1.7rem; color: var(--text-dark); margin-bottom: 0.4rem;">Booking Submitted!</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">
+            Thank you for choosing <strong>The Party Hard</strong>. Your booking has been recorded.
+          </p>
+
+          <div>
+            <span class="booking-id-pill" id="confirm-booking-id">TPH-2026-8941</span>
+          </div>
+
+          <button class="btn btn-white-pill" onclick="copyBookingId()" style="font-size: 0.85rem; padding: 0.4rem 1rem; margin-bottom: 1rem;">
+            <i class="fa-regular fa-copy"></i> Copy Booking ID
+          </button>
+
+          <!-- Injected Details -->
+          <div id="confirm-booking-details"></div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem;">
+            <a id="confirm-receipt-download-btn" href="#" target="_blank" class="btn btn-pink" style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
+              <i class="fa-solid fa-file-pdf"></i> Download Official PDF Receipt
+            </a>
+            <a id="confirm-whatsapp-btn" href="#" target="_blank" class="btn btn-whatsapp" style="text-decoration: none;">
+              <i class="fa-brands fa-whatsapp"></i> Send on WhatsApp for 1-Minute Confirmation
+            </a>
+            <button class="btn btn-white-pill" onclick="closeModal('confirmation-modal')">
+              Done & Return to Website
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================
+       MODAL 2: SERVICE DETAIL MODAL
+  =================================================== -->
+  <div class="modal-overlay" id="detail-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="detail-title">Package Details</h3>
+        <button class="modal-close-btn" onclick="closeModal('detail-modal')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="detail-body">
+        <!-- Injected via app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================
+       MODAL 3: CELEBRATION WELCOME EXPERIENCE MODAL
+  =================================================== -->
+  <div class="modal-overlay welcome-overlay" id="welcome-modal">
+    <!-- Full-screen Canvas for Celebration Confetti Burst -->
+    <canvas id="welcome-confetti-canvas" class="welcome-confetti-canvas"></canvas>
+
+    <div class="modal-card welcome-card">
+      <button class="welcome-close-btn" onclick="closeWelcomeModal()" title="Close Welcome">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="welcome-card-inner">
+        <!-- Welcoming Badge -->
+        <div class="welcome-badge-wrap">
+          <span class="welcome-badge">
+            <span class="welcome-sparkle-dot"></span>
+            SWAGATAM • WELCOME TO THE PARTY HARD
+            <span class="welcome-sparkle-dot"></span>
+          </span>
+        </div>
+
+        <!-- Animated Floating Festive Balloon Row -->
+        <div class="welcome-balloons-art" aria-hidden="true">
+          <span class="welcome-balloon b1">🎈</span>
+          <span class="welcome-balloon b2">✨</span>
+          <span class="welcome-balloon b3">🎊</span>
+          <span class="welcome-balloon b4">🎂</span>
+          <span class="welcome-balloon b5">💖</span>
+        </div>
+
+        <h2 class="welcome-title">
+          Har Celebration Ko Banayein <br>
+          <span class="welcome-gradient-text">Khoobsurat & Yaadgar!</span> 🎈
+        </h2>
+
+        <p class="welcome-tagline">
+          <em>"Decorate Your Happiness"</em> — Premium Balloon & Luxury Event Styling
+        </p>
+
+        <p class="welcome-msg">
+          Namaste! 🙏 <strong>The Party Hard</strong> mein aapka swagat hai! Hum aapke Birthdays, Anniversaries, Weddings aur Baby Showers ke liye laaye hain <strong>60+ trending setups</strong> aur <strong>instant 2-Hour Express Service</strong>.
+        </p>
+
+        <!-- Feature Mini Highlights -->
+        <div class="welcome-highlights">
+          <div class="welcome-hl-pill">
+            <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+            <span>60+ Luxury Themes</span>
+          </div>
+          <div class="welcome-hl-pill">
+            <i class="fa-solid fa-bolt" style="color: #e85072;"></i>
+            <span>2-Hour Express Setup</span>
+          </div>
+          <div class="welcome-hl-pill">
+            <i class="fa-solid fa-star" style="color: #f59e0b;"></i>
+            <span>4.9★ Client Rating</span>
+          </div>
+          <div class="welcome-hl-pill">
+            <i class="fa-solid fa-shield-heart" style="color: #10b981;"></i>
+            <span>100% On-Time Guarantee</span>
+          </div>
+        </div>
+
+        <!-- Action CTAs -->
+        <div class="welcome-actions">
+          <button class="btn btn-pink welcome-cta-btn" onclick="handleWelcomeExplore()">
+            <i class="fa-regular fa-compass"></i> Explore 60+ Packages <i class="fa-solid fa-arrow-right"></i>
+          </button>
+          <button class="btn btn-white-pill welcome-ai-btn" onclick="handleWelcomeChat()">
+            <i class="fa-solid fa-robot" style="color: #e85072;"></i> Chat with Party Hard AI 👋
+          </button>
+        </div>
+
+        <div class="welcome-footer-note">
+          <span>Need instant assistance? Call or WhatsApp:</span>
+          <a href="https://wa.me/919263667669?text=Hello%20The%20Party%20Hard,%20I%20am%20visiting%20your%20website" target="_blank" class="welcome-wa-link">
+            <i class="fa-brands fa-whatsapp"></i> +91 92636 67669
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================
+       MOBILE BOTTOM STICKY ACTION BAR (1-Tap Booking & Chat)
+  =================================================== -->
+  <div class="mobile-sticky-bar" id="mobile-sticky-bar">
+    <button class="mobile-bar-btn book-btn" onclick="openBookingModalForPackage('')">
+      <i class="fa-regular fa-calendar-check"></i> Book Now
+    </button>
+    <button class="mobile-bar-btn chat-btn" onclick="openAiChat()">
+      <i class="fa-solid fa-robot"></i> Chat AI
+    </button>
+    <a href="https://wa.me/919263667669?text=Hello%20The%20Party%20Hard,%20I%20am%20interested%20in%20decoration%20services" target="_blank" class="mobile-bar-btn wa-btn">
+      <i class="fa-brands fa-whatsapp"></i> WhatsApp
+    </a>
+  </div>
+
+
+  <!-- Scripts -->
+  <script src="js/services-data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/chat.js"></script>
+
+  <!-- Interactive helper scripts for the Hero AI Card -->
+  <script>
+    function hideHeroAiCard() {
+      const card = document.getElementById('hero-ai-widget');
+      if (card) {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(-10px)';
+        card.style.transition = 'all 0.3s ease';
+        setTimeout(() => { card.style.display = 'none'; }, 300);
+      }
+    }
+
+    function handleHeroAiSubmit(e) {
+      e.preventDefault();
+      const heroInput = document.getElementById('hero-ai-input');
+      const val = heroInput ? heroInput.value.trim() : '';
+      if (!val) return;
+      heroInput.value = '';
+      if (window.askAiPrompt) {
+        window.askAiPrompt(val);
+      }
+    }
+
+    function focusSearch() {
+      const packagesSection = document.getElementById('packages');
+      if (packagesSection) packagesSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "name": "the-party-hard",
+  "version": "1.0.0",
+  "description": "The Party Hard - Premium Balloon & Event Decoration Website with AI Assistant & Real Booking System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "build": "echo 'Build ready for Netlify'"
+  },
+  "keywords": [
+    "balloon-decoration",
+    "event-planner",
+    "party-hard",
+    "the-party-hard",
+    "luxury-decor",
+    "ai-chatbot"
+  ],
+  "author": "The Party Hard",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^9.11.4",
+    "pdfkit": "^0.20.2",
+    "serverless-http": "^3.2.0"
+  }
+}
