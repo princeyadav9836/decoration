@@ -654,7 +654,7 @@
 
         const receiptBtn = document.getElementById('confirm-receipt-download-btn');
         if (receiptBtn) {
-          receiptBtn.href = booking.receiptUrl || `/api/bookings/${booking.id}/receipt.pdf`;
+          receiptBtn.href = `/api/bookings/${booking.id}/receipt.pdf`;
         }
 
         const waText = encodeURIComponent(

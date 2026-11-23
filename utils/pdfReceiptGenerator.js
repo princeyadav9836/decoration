@@ -1,40 +1,34 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const PDFDocument = require('pdfkit');
 
 /**
- * Generate a professional, luxury PDF receipt for YUVI DECORATION
- * Using Cream, Pastel Pink, and Champagne Gold styling.
- * 
+ * Generate a luxury PDF receipt as an in-memory Buffer.
+ * Works 100% reliably in Serverless (AWS Lambda / Netlify), Docker, and local Node.js.
+ * Zero reliance on a writable filesystem.
+ *
  * @param {Object} booking 
- * @returns {Promise<{ filePath: string, relativeUrl: string, fileName: string }>}
+ * @returns {Promise<Buffer>}
  */
-function generateBookingReceipt(booking) {
+function generateBookingReceiptBuffer(booking) {
   return new Promise((resolve, reject) => {
     try {
-      const receiptsDir = path.join(__dirname, '..', 'public', 'receipts');
-      if (!fs.existsSync(receiptsDir)) {
-        fs.mkdirSync(receiptsDir, { recursive: true });
-      }
-
-      const fileName = `Receipt-${booking.id}.pdf`;
-      const filePath = path.join(receiptsDir, fileName);
-      const relativeUrl = `/receipts/${fileName}`;
-
-      // Create PDF Document (A4 size with 36pt margins)
       const doc = new PDFDocument({
         size: 'A4',
         margin: 36,
         info: {
-          Title: `YUVI DECORATION Receipt - ${booking.id}`,
+          Title: `YUVI DECORATION Receipt - ${booking.id || 'Official'}`,
           Author: 'YUVI DECORATION Patna',
           Subject: 'Official Event Decoration Booking Confirmation & Receipt',
           Keywords: 'balloon decoration, booking receipt, yuvi decoration'
         }
       });
 
-      const writeStream = fs.createWriteStream(filePath);
-      doc.pipe(writeStream);
+      const chunks = [];
+      doc.on('data', chunk => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
 
       // --- Color Palette ---
       const COLOR_CREAM = '#FDFBF7';
@@ -92,7 +86,7 @@ function generateBookingReceipt(booking) {
       doc.fontSize(11)
          .font('Helvetica-Bold')
          .fillColor(COLOR_PINK)
-         .text(booking.id, doc.page.width - 190, 56, { width: 145, align: 'center' });
+         .text(booking.id || 'YUVI-CONFIRMED', doc.page.width - 190, 56, { width: 145, align: 'center' });
 
       const bookingDateStr = booking.createdAt 
         ? new Date(booking.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -113,7 +107,7 @@ function generateBookingReceipt(booking) {
          .lineWidth(0.8)
          .stroke(COLOR_GOLD);
 
-      const statusText = (booking.status || 'pending').toUpperCase();
+      const statusText = (booking.status || 'confirmed').toUpperCase();
       doc.fontSize(9)
          .font('Helvetica-Bold')
          .fillColor(COLOR_DARK)
@@ -173,7 +167,7 @@ function generateBookingReceipt(booking) {
       let evntY = yPos + 32;
       drawLabelValue(doc, 'Occasion / Event:', booking.eventType || 'Celebration', rightColX + 12, evntY, colWidth - 24);
       evntY += 18;
-      drawLabelValue(doc, 'Event Date:', booking.eventDate || 'To be scheduled', rightColX + 12, evntY, colWidth - 24);
+      drawLabelValue(doc, 'Event Date:', booking.eventDate || 'Scheduled on Request', rightColX + 12, evntY, colWidth - 24);
       evntY += 18;
       drawLabelValue(doc, 'Setup Time Slot:', booking.eventTime || 'Flexible Timing', rightColX + 12, evntY, colWidth - 24);
       evntY += 18;
@@ -294,22 +288,51 @@ function generateBookingReceipt(booking) {
          });
 
       doc.end();
-
-      writeStream.on('finish', () => {
-        resolve({
-          filePath,
-          relativeUrl,
-          fileName
-        });
-      });
-
-      writeStream.on('error', (err) => {
-        reject(err);
-      });
     } catch (err) {
       reject(err);
     }
   });
+}
+
+/**
+ * Generate a luxury PDF receipt and optionally save to disk if writable.
+ * Always resolves successfully even if the environment is a read-only serverless container.
+ * 
+ * @param {Object} booking 
+ * @returns {Promise<{ filePath: string, relativeUrl: string, fileName: string, buffer: Buffer }>}
+ */
+async function generateBookingReceipt(booking) {
+  const buffer = await generateBookingReceiptBuffer(booking);
+  const fileName = `Receipt-${booking.id}.pdf`;
+  const relativeUrl = `/api/bookings/${booking.id}/receipt.pdf`;
+  let filePath = '';
+
+  // Attempt local disk save (safe for localhost development)
+  try {
+    const receiptsDir = path.join(__dirname, '..', 'public', 'receipts');
+    if (!fs.existsSync(receiptsDir)) {
+      fs.mkdirSync(receiptsDir, { recursive: true });
+    }
+    filePath = path.join(receiptsDir, fileName);
+    fs.writeFileSync(filePath, buffer);
+  } catch (fsErr) {
+    // Read-only filesystem fallback (e.g. AWS Lambda / Netlify Serverless)
+    try {
+      const tmpDir = path.join(os.tmpdir(), 'yuvi_receipts');
+      if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+      filePath = path.join(tmpDir, fileName);
+      fs.writeFileSync(filePath, buffer);
+    } catch (tmpErr) {
+      filePath = '';
+    }
+  }
+
+  return {
+    filePath,
+    relativeUrl,
+    fileName,
+    buffer
+  };
 }
 
 // Helper: Draw label-value pair
@@ -343,5 +366,6 @@ function drawSummaryRow(doc, label, value, x, y, width, isHighlight = false) {
 }
 
 module.exports = {
-  generateBookingReceipt
+  generateBookingReceipt,
+  generateBookingReceiptBuffer
 };

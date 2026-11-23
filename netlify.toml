@@ -13,6 +13,12 @@
   to = "/.netlify/functions/api/api/:splat"
   status = 200
 
+# Route PDF receipt requests to Netlify Serverless Function
+[[redirects]]
+  from = "/receipts/*"
+  to = "/.netlify/functions/api/api/receipts/:splat"
+  status = 200
+
 # Route friendly URLs to HTML pages
 [[redirects]]
   from = "/book"
