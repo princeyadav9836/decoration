@@ -18,6 +18,7 @@ mongoose.set('bufferCommands', false);
 let isConnected = false;
 let lastError = null;
 let lastAttemptedUri = null;
+let cachedConnectionPromise = null;
 const CLOUD_MONGODB_URI = 'mongodb+srv://pk3713580_db_user:lucifer9836@cluster0.mvbozoc.mongodb.net/yuvi_decoration?retryWrites=true&w=majority';
 
 async function connectDB() {
@@ -26,20 +27,41 @@ async function connectDB() {
     return true;
   }
 
-  let uri = process.env.MONGODB_URI;
-  if (!uri || uri.includes('<PASSWORD>') || uri.includes('<YOUR_CLUSTER_HOST>') || uri.includes('<password>') || uri.includes('127.0.0.1')) {
+  // Reuse existing in-flight connection promise to prevent duplicate connections on serverless
+  if (cachedConnectionPromise) {
+    try {
+      await cachedConnectionPromise;
+      if (mongoose.connection.readyState === 1) {
+        isConnected = true;
+        return true;
+      }
+    } catch (e) {
+      cachedConnectionPromise = null;
+    }
+  }
+
+  let uri = (process.env.MONGODB_URI || '').trim();
+  // Auto-clean angle brackets if user copied <password>
+  uri = uri.replace(/:<([^>]+)>/, ':$1');
+  if (!uri || uri.includes('<PASSWORD>') || uri.includes('<YOUR_CLUSTER_HOST>') || uri.includes('<password>') || uri.includes('127.0.0.1') || uri.includes('<db_password')) {
     uri = CLOUD_MONGODB_URI;
+  }
+  // Ensure database name is explicitly included in the URI path
+  if (uri.startsWith('mongodb+srv://') && !uri.split('?')[0].includes('.mongodb.net/yuvi_decoration')) {
+    uri = uri.replace(/\.mongodb\.net\/?(\?.*)?$/, '.mongodb.net/yuvi_decoration$1');
   }
   lastAttemptedUri = uri;
 
   try {
-    console.log(`\n🍃 Attempting to connect to MongoDB...`);
+    console.log(`\n🍃 Attempting to connect to MongoDB Atlas...`);
     
-    // Connect with a reasonable timeout so server boots instantly even if offline
-    await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 6000
+    cachedConnectionPromise = mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 8000,
+      connectTimeoutMS: 8000,
+      maxPoolSize: 10
     });
+
+    await cachedConnectionPromise;
 
     if (mongoose.connection.readyState !== 1) {
       throw new Error('MongoDB connection is not ready');
@@ -50,8 +72,9 @@ async function connectDB() {
     console.log(`✅ [MongoDB Connected] Database: ${mongoose.connection.name}`);
     console.log(`🍃 Host: ${mongoose.connection.host}`);
 
-    // Auto-seed and sync data into MongoDB only when ready
-    if (mongoose.connection.readyState === 1) {
+    // In Serverless (Netlify), avoid blocking write requests with heavy multi-collection seeding
+    const isServerless = process.env.NETLIFY === 'true' || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME);
+    if (!isServerless && mongoose.connection.readyState === 1) {
       await seedServicesIfEmpty();
       await seedBookingsIfEmpty();
       await seedEnquiriesIfEmpty();
@@ -65,10 +88,11 @@ async function connectDB() {
 
     return true;
   } catch (err) {
+    cachedConnectionPromise = null;
     isConnected = false;
     lastError = err.message;
-    console.log(`⚠️  [MongoDB Notice] Could not connect to MongoDB at: ${uri}`);
-    console.log(`ℹ️  Reason: ${err.message}`);
+    console.error(`⚠️  [MongoDB Notice] Could not connect to MongoDB at: ${uri.replace(/:([^@]+)@/, ':****@')}`);
+    console.error(`ℹ️  Reason: ${err.message}`);
     console.log(`🚀 [Auto-Fallback] Active! Server will use high-performance local JSON storage seamlessly.`);
     return false;
   }

@@ -21,22 +21,11 @@ app.use(express.urlencoded({ limit: '25mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Ensure MongoDB connection is ready before processing API requests (critical for Netlify / Serverless)
-let serverlessDbPromise = null;
-let lastDbAttempt = 0;
-const DB_RETRY_INTERVAL = 30000; // 30s cooldown between failed connection attempts to keep local fallback instant
-
 app.use(async (req, res, next) => {
   if (!isDbConnected()) {
-    const now = Date.now();
-    if (now - lastDbAttempt > DB_RETRY_INTERVAL) {
-      lastDbAttempt = now;
-      if (!serverlessDbPromise) {
-        serverlessDbPromise = connectDB().finally(() => { serverlessDbPromise = null; });
-      }
-      try {
-        await serverlessDbPromise;
-      } catch (e) {}
-    }
+    try {
+      await connectDB();
+    } catch (e) {}
   }
   next();
 });
@@ -327,19 +316,24 @@ app.post('/api/bookings', async (req, res) => {
   }
 
   // 3. Save to MongoDB (with immediate connection guarantee)
-  if (!isDbConnected()) {
-    try {
-      await connectDB();
-    } catch (e) {}
-  }
+  let dbSaved = false;
+  let dbError = null;
 
-  if (isDbConnected()) {
-    try {
-      await Booking.create(newBooking);
-      console.log(`✅ [MongoDB Saved] #${newBooking.id} for ${newBooking.customerName}`);
-    } catch (dbErr) {
-      console.error('MongoDB save booking error:', dbErr.message);
+  try {
+    if (!isDbConnected()) {
+      await connectDB();
     }
+    if (isDbConnected()) {
+      await Booking.create(newBooking);
+      dbSaved = true;
+      console.log(`✅ [MongoDB Saved] #${newBooking.id} for ${newBooking.customerName}`);
+    } else {
+      dbError = 'Database offline or connection timed out';
+      console.warn(`⚠️ [MongoDB Warning] Database not connected when saving booking #${newBooking.id}`);
+    }
+  } catch (dbErr) {
+    dbError = dbErr.message;
+    console.error(`❌ [MongoDB Error] Failed to save booking #${newBooking.id}:`, dbErr.message);
   }
 
   // 4. Keep local JSON fallback in sync
@@ -348,8 +342,10 @@ app.post('/api/bookings', async (req, res) => {
 
   res.status(201).json({
     success: true,
-    message: 'Booking created and PDF receipt generated successfully!',
+    message: dbSaved ? 'Booking created and saved to MongoDB!' : 'Booking created successfully!',
     booking: newBooking,
+    dbSaved,
+    dbError,
     receiptUrl: newBooking.receiptUrl,
     whatsappStatus: newBooking.whatsappStatus
   });

@@ -126,6 +126,10 @@ const bookingSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  originalAmount: {
+    type: Number,
+    default: 0
+  },
   discountAmount: {
     type: Number,
     default: 0
