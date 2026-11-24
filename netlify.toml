@@ -7,6 +7,10 @@
   functions = "netlify/functions"
   command = "npm run build"
 
+  git add netlify.toml
+git commit -m "Fix PDFKit files in Netlify deployment"
+git push
+
 # Route API requests to Netlify Serverless Function
 [[redirects]]
   from = "/api/*"
